@@ -1,0 +1,20 @@
+export 'package:flutter/material.dart';
+export 'package:page_transition/page_transition.dart';
+export 'home/view/home.dart';
+export 'genresBooks/genres_books.dart';
+export 'eBook/view/book_detail.dart';
+export 'startListening/start_listening.dart';
+export 'trendingBooks/trending_books.dart';
+export 'search/search.dart';
+export 'searchResult/search_result.dart';
+export 'profile/profile.dart';
+export 'editProfile/pages/edit_profile.dart';
+export 'bookmarked/bookmarked.dart';
+export 'notifications/view/notifications.dart';
+export 'support/view/support.dart';
+export 'privacyPolicy/privacy_policy.dart';
+export 'auth/view/login.dart';
+export 'auth/view/verification.dart';
+export 'auth/view/onboarding.dart';
+
+export 'shared/modern_base_layout.dart';

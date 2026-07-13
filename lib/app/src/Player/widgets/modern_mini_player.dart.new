@@ -1,0 +1,157 @@
+import 'package:audio_service/audio_service.dart';
+import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import '../services/music_player_service.dart';
+import 'modern_player_screen.dart';
+
+class ModernMiniPlayer extends StatelessWidget {
+  const ModernMiniPlayer({Key? key}) : super(key: key);
+  
+  @override
+  Widget build(BuildContext context) {
+    final playerService = GetIt.I<MusicPlayerService>();
+
+    return StreamBuilder<MediaItem?>(
+      stream: playerService.currentTrack,
+      builder: (context, snapshot) {
+        final mediaItem = snapshot.data;
+        if (mediaItem == null) return const SizedBox();
+
+        return GestureDetector(
+          onTap: () async {
+            // Get current playlist from the service
+            final queue = await playerService.queue.first;
+            final currentIndex = queue.indexOf(mediaItem);
+
+            if (!context.mounted) return;
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ModernPlayerScreen(
+                  playlist: queue,
+                  initialIndex: currentIndex >= 0 ? currentIndex : 0,
+                ),
+              ),
+            );
+          },
+          child: Container(
+            height: 64,
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, -2),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                // Progress bar
+                StreamBuilder<Duration>(
+                  stream: playerService.position,
+                  builder: (context, snapshot) {
+                    final position = snapshot.data ?? Duration.zero;
+                    return StreamBuilder<Duration?>(
+                      stream: playerService.duration,
+                      builder: (context, snapshot) {
+                        final duration = snapshot.data ?? Duration.zero;
+                        if (duration == Duration.zero) {
+                          return const SizedBox(height: 2);
+                        }
+
+                        return LinearProgressIndicator(
+                          value: position.inMilliseconds /
+                              duration.inMilliseconds,
+                          backgroundColor: Colors.grey[300],
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Theme.of(context).primaryColor,
+                          ),
+                          minHeight: 2,
+                        );
+                      },
+                    );
+                  },
+                ),
+                // Mini player content
+                Expanded(
+                  child: Row(
+                    children: [
+                      // Artwork
+                      AspectRatio(
+                        aspectRatio: 1,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: NetworkImage(
+                                mediaItem.artUri.toString(),
+                              ),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Track info
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                mediaItem.title,
+                                style: Theme.of(context).textTheme.titleMedium,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              if (mediaItem.artist != null) ...[
+                                const SizedBox(height: 2),
+                                Text(
+                                  mediaItem.artist!,
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                      // Playback controls
+                      StreamBuilder<PlaybackState>(
+                        stream: playerService.playbackState,
+                        builder: (context, snapshot) {
+                          final playbackState = snapshot.data;
+                          final playing = playbackState?.playing ?? false;
+
+                          return Row(
+                            children: [
+                              IconButton(
+                                icon: Icon(playing
+                                    ? Icons.pause_rounded
+                                    : Icons.play_arrow_rounded),
+                                onPressed: playing
+                                    ? playerService.pause
+                                    : playerService.play,
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.skip_next_rounded),
+                                onPressed: playerService.skipToNext,
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
