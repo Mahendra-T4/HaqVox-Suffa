@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:haqvox/app/core/database/key.dart';
+import 'package:haqvox/app/src/Player/services/music_player_service.dart';
 import 'package:haqvox/app/src/splash.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -68,7 +70,7 @@ class HiveService {
   static String? getDOB() => getter(key: DBKeys.uDOB);
 
   /// Get user role
-  static String? getSubscription() => getter(key: DBKeys.uSubscriptionKey);
+  static int? getSubscription() => getter(key: DBKeys.uSubscriptionKey);
 
   static String? userGender() => getter(key: DBKeys.uGender);
 
@@ -79,6 +81,10 @@ class HiveService {
   // static String? getUserProfileImage() => getter(key: DBKeys.profileImageKey);
 
   static Future<void> logout(BuildContext context) async {
+    if (GetIt.I.isRegistered<MusicPlayerService>()) {
+      await GetIt.I<MusicPlayerService>().clearQueue();
+    }
+
     // Clear all user data
     await _box?.clear();
 

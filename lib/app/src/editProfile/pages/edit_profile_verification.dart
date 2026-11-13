@@ -5,18 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:haqvox/app/config/environment.dart';
 import 'package:haqvox/app/constant/constant.dart';
-import 'package:haqvox/app/core/database/key.dart';
-import 'package:haqvox/app/core/database/shared_prefs_config.dart';
 import 'package:haqvox/app/core/database/user/hive_db.dart';
 import 'package:haqvox/app/core/widgets/custom_snackbar.dart';
 import 'package:haqvox/app/core/widgets/ios_alert_dialog.dart';
 import 'package:haqvox/app/services/connectivity.dart';
-import 'package:haqvox/app/services/no_internate_page.dart';
 import 'package:haqvox/app/src/auth/models/otp_entity.dart';
 import 'package:haqvox/app/src/bottom_bar.dart';
 import 'package:haqvox/app/src/editProfile/model/edit_profile_details_entity.dart';
 import 'package:haqvox/app/src/editProfile/model/edit_profile_verification_params.dart';
-import 'package:haqvox/app/src/myspace/view/myspace.dart';
 import 'package:haqvox/app/src/myspace/view/offline_download.dart';
 import 'package:haqvox/app/src/splash.dart';
 import 'package:http/http.dart' as http;
@@ -371,7 +367,7 @@ class _VerificationState extends State<EditProfileVerification> {
               borderRadius: BorderRadius.circular(15),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha:0.1),
                   blurRadius: 10,
                   offset: const Offset(0, 5),
                 ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:haqvox/app/assets/assets.dart';
 import 'package:haqvox/app/constant/constant.dart';
@@ -93,7 +92,7 @@ class _BottomBarState extends State<BottomBar> {
                 borderRadius: BorderRadius.circular(25),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha:0.1),
                     blurRadius: 20,
                     offset: const Offset(0, 5),
                   ),
@@ -105,7 +104,7 @@ class _BottomBarState extends State<BottomBar> {
                   backgroundColor: Colors.white,
                   elevation: 0,
                   type: BottomNavigationBarType.fixed,
-                  selectedItemColor: primaryColor.withOpacity(.8),
+                  selectedItemColor: primaryColor.withValues(alpha:.8),
                   unselectedItemColor: Colors.grey.shade400,
                   selectedLabelStyle: const TextStyle(
                     fontWeight: FontWeight.w600,
@@ -122,8 +121,8 @@ class _BottomBarState extends State<BottomBar> {
                     });
                   },
                   items: [
-                    _buildNavItem(FontAwesomeIcons.house, 'Home'),
-                    _buildNavItem(FontAwesomeIcons.search, 'Search'),
+                    _buildNavItem(Icons.house, 'Home'),
+                    _buildNavItem(Icons.search, 'Search'),
                     _buildNavItemImg(Assets.bookIconImage, 'MySpace'),
                     _buildNavItemImg(Assets.settingsIconImage, 'Settings'),
                   ],
@@ -144,7 +143,7 @@ class _BottomBarState extends State<BottomBar> {
         decoration: BoxDecoration(
           color:
               currentIndex == _getIndex(label)
-                  ? Colors.blue.withOpacity(0.1)
+                  ? Colors.blue.withValues(alpha:0.1)
                   : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
         ),
@@ -162,7 +161,7 @@ class _BottomBarState extends State<BottomBar> {
         decoration: BoxDecoration(
           color:
               currentIndex == _getIndex(label)
-                  ? Colors.blue.withOpacity(0.1)
+                  ? Colors.blue.withValues(alpha:0.1)
                   : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
         ),

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:haqvox/app/config/environment.dart';
+import 'package:haqvox/app/core/database/user/hive_db.dart';
 import 'package:haqvox/app/src/eBook/models/chapter_audio_entity.dart';
 import 'package:haqvox/app/src/eBook/models/ebook_chepter_entity.dart';
 import 'package:haqvox/app/src/eBook/models/ebook_entity.dart';
@@ -116,6 +117,7 @@ abstract class EBookRepository {
           'activity': 'audio',
           'chapterSlug': chapterSlug,
           'ebookSlug': ebookSlug,
+          'userKey': HiveService.getUserId() ?? '',
         },
       );
       if (response.statusCode == 200) {

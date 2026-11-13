@@ -3,6 +3,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:haqvox/app/constant/constant.dart';
+import 'package:haqvox/app/core/database/user/hive_db.dart';
 import 'package:haqvox/app/src/Player/widgets/modern_player_screen.dart';
 import 'package:haqvox/app/core/database/hive_models/downloaded_audio_model.dart';
 
@@ -17,6 +18,8 @@ class DownloadsScreen extends StatefulWidget {
 
 class _DownloadsScreenState extends State<DownloadsScreen> {
   final DownloadManager _downloadManager = DownloadManager();
+
+  
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +106,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
                         width: 48,
                         height: 48,
                         decoration: BoxDecoration(
-                          color: primaryColor.withOpacity(0.1),
+                          color: primaryColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(Icons.music_note, color: primaryColor),

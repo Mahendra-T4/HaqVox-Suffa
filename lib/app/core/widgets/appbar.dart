@@ -9,12 +9,12 @@ PreferredSizeWidget customAppBar({
 }) {
   return AppBar(
     automaticallyImplyLeading: false,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.only(
-        bottomLeft: Radius.circular(20),
-        bottomRight: Radius.circular(20),
-      ),
-    ),
+    // shape: const RoundedRectangleBorder(
+    //   borderRadius: BorderRadius.only(
+    //     bottomLeft: Radius.circular(20),
+    //     bottomRight: Radius.circular(20),
+    //   ),
+    // ),
     // leading: IconButton(
     //   onPressed: () => GoRouter.of(context).pop(),
     //   icon: Image.asset(
@@ -39,12 +39,12 @@ PreferredSizeWidget customAppBar1({
 }) {
   return AppBar(
     automaticallyImplyLeading: false,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.only(
-        bottomLeft: Radius.circular(20),
-        bottomRight: Radius.circular(20),
-      ),
-    ),
+    // shape: const RoundedRectangleBorder(
+    //   borderRadius: BorderRadius.only(
+    //     bottomLeft: Radius.circular(20),
+    //     bottomRight: Radius.circular(20),
+    //   ),
+    // ),
     leading: IconButton(
       onPressed: () {
         context.pop();

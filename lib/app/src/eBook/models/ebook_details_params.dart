@@ -4,6 +4,7 @@ class EBooksDetailsParams {
   final String eBookDescription;
   final String ebookTagline;
   final String ebookSlug;
+  final int? bookmarkStatus;
 
   EBooksDetailsParams(
       {required this.eBookName,
@@ -11,6 +12,6 @@ class EBooksDetailsParams {
       required this.eBookDescription,
       required this.ebookTagline,
       required this.ebookSlug,
-      
+      this.bookmarkStatus,
       });
 }

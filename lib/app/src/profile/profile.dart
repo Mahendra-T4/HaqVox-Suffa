@@ -3,16 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:haqvox/app/assets/assets.dart';
 import 'package:haqvox/app/constant/constant.dart';
-import 'package:haqvox/app/core/database/key.dart';
-import 'package:haqvox/app/core/database/shared_prefs_config.dart';
 import 'package:haqvox/app/core/database/user/hive_db.dart';
 import 'package:haqvox/app/core/widgets/appbar.dart';
 import 'package:haqvox/app/services/connectivity.dart';
-import 'package:haqvox/app/src/auth/repositories/auth_repo.dart';
 import 'package:haqvox/app/src/auth/view/changePassword.dart';
 import 'package:haqvox/app/src/editProfile/pages/edit_profile.dart';
 import 'package:haqvox/app/src/info/view/info.dart';
-import 'package:haqvox/app/src/myspace/view/myspace.dart';
 import 'package:haqvox/app/src/myspace/view/offline_download.dart';
 import 'package:haqvox/app/src/subscription/view/subscription_plan_view.dart';
 import 'package:haqvox/app/src/support/view/suffa_support.dart';
@@ -263,7 +259,7 @@ class _ProfileState extends State<Profile> {
           ontap:
               () => GoRouter.of(
                 context,
-              ).pushNamed(InfoPage.routeName, extra: '2'),
+              ).pushNamed(InfoPage.routeName, extra: '3'),
           title: 'Privacy Policy',
           color: blackColor,
         ),
@@ -272,7 +268,7 @@ class _ProfileState extends State<Profile> {
           ontap:
               () => GoRouter.of(
                 context,
-              ).pushNamed(InfoPage.routeName, extra: '3'),
+              ).pushNamed(InfoPage.routeName, extra: '2'),
           title: 'Terms & Conditions',
           color: blackColor,
         ),

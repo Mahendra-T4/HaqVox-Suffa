@@ -148,6 +148,14 @@ class _DownloadsTabState extends State<DownloadsTab> {
               });
             },
           ),
+          TextButton.icon(
+            onPressed: _showDeleteAllDialog,
+            icon: const Icon(Icons.delete_outline, color: Colors.red),
+            label: Text(
+              'Clear all',
+              style: GoogleFonts.poppins(color: Colors.red),
+            ),
+          ),
           const Spacer(),
           IconButton(
             icon: Icon(_isGridView ? Icons.list : Icons.grid_view),
@@ -160,6 +168,48 @@ class _DownloadsTabState extends State<DownloadsTab> {
         ],
       ),
     );
+  }
+
+  Future<void> _showDeleteAllDialog() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text(
+              'Clear Downloads',
+              style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+            ),
+            content: Text(
+              'Delete all downloaded audio files? This action cannot be undone.',
+              style: GoogleFonts.poppins(),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text('Cancel', style: GoogleFonts.poppins()),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: Text(
+                  'Delete all',
+                  style: GoogleFonts.poppins(color: Colors.red),
+                ),
+              ),
+            ],
+          ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    try {
+      await _downloadManager.deleteAllDownloads();
+      if (mounted) setState(() {});
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not clear downloads: $error')),
+      );
+    }
   }
 
   Widget _buildEmptyState() {
@@ -223,7 +273,7 @@ class _DownloadsTabState extends State<DownloadsTab> {
                               fit: BoxFit.cover,
                             )
                             : null,
-                    color: primaryColor.withOpacity(0.1),
+                    color: primaryColor.withValues(alpha: 0.1),
                   ),
                   child:
                       download.coverUrl == null
@@ -289,7 +339,7 @@ class _DownloadsTabState extends State<DownloadsTab> {
             borderRadius: BorderRadius.circular(15),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 2),
               ),
@@ -302,7 +352,7 @@ class _DownloadsTabState extends State<DownloadsTab> {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: primaryColor.withOpacity(0.1),
+                color: primaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
                 image:
                     download.coverUrl != null
@@ -401,7 +451,7 @@ class _DownloadsTabState extends State<DownloadsTab> {
           padding: const EdgeInsets.all(16),
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: primaryColor.withOpacity(0.1),
+            color: primaryColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(

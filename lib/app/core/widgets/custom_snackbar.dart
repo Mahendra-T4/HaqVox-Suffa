@@ -7,6 +7,7 @@ class CustomSnackBar {
     required BuildContext context,
     required String message,
     SnackBarType type = SnackBarType.info,
+    int? maxLines,
     Duration duration = const Duration(seconds: 3),
   }) {
     // Use addPostFrameCallback to ensure the widget tree is stable
@@ -25,7 +26,7 @@ class CustomSnackBar {
                   message,
                   style: white14RegularTextStyle,
                   overflow: TextOverflow.ellipsis,
-                  maxLines: 2,
+                  maxLines: maxLines ?? 2,
                 ),
               ),
             ],
@@ -84,7 +85,7 @@ class CustomSnackBar {
       case SnackBarType.error:
         return redColor;
       case SnackBarType.warning:
-        return yellowColor.withOpacity(0.9);
+        return yellowColor.withValues(alpha:0.9);
       case SnackBarType.info:
         return primaryColor;
     }

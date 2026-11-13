@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:path/path.dart' as p;
 import 'package:haqvox/app/core/database/hive_models/downloaded_audio_model.dart';
 import '../database/downloads_hive_db.dart';

@@ -77,7 +77,11 @@ class _MySpaceListTabState extends State<MySpaceListTab> {
     return {'isDownloaded': isDownloaded, 'localFilePath': localFilePath};
   }
 
-  Future<void> _downloadAudio(String url, String title) async {
+  Future<void> _downloadAudio(
+    String url,
+    String title,
+    String imagePath,
+  ) async {
     try {
       _startProgressUpdates();
 
@@ -86,7 +90,7 @@ class _MySpaceListTabState extends State<MySpaceListTab> {
         fileName: '${DateTime.now().millisecondsSinceEpoch}_$title.mp3',
         title: title,
         artist: 'Suffa Audio',
-        coverUrl: 'asset:///' + Assets.bookIconImage,
+        coverUrl: imagePath,
         chapterTitle: 'My Space Collection',
         chapterSlug: 'myspace',
         ebookSlug: 'myspace',
@@ -208,98 +212,105 @@ class _MySpaceListTabState extends State<MySpaceListTab> {
                         borderRadius: BorderRadius.circular(15),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 2),
                           ),
                         ],
                       ),
-                      child: ListTile(
-                        onTap: () => _playTrack(record),
-                        contentPadding: const EdgeInsets.all(12),
-                        leading: Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: primaryColor.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Image.asset(
-                              Assets.mySpaceMusicDefaultImage,
-                              fit: BoxFit.cover,
-                              errorBuilder:
-                                  (context, error, stackTrace) => const Icon(
-                                    Icons.music_note,
-                                    color: primaryColor,
-                                  ),
+                      child: Material(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                        clipBehavior: Clip.antiAlias,
+                        child: ListTile(
+                          onTap: () => _playTrack(record),
+                          contentPadding: const EdgeInsets.all(12),
+                          leading: Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: primaryColor.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                          ),
-                        ),
-                        title: Text(
-                          record.audioName.toString(),
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(record.mySpaceDate.toString()),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            FutureBuilder<bool>(
-                              future: _downloadManager.isDownloaded(
-                                record.audioPath.toString(),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.asset(
+                                Assets.mySpaceMusicDefaultImage,
+                                fit: BoxFit.cover,
+                                errorBuilder:
+                                    (context, error, stackTrace) => const Icon(
+                                      Icons.music_note,
+                                      color: primaryColor,
+                                    ),
                               ),
-                              builder: (context, snapshot) {
-                                final bool isDownloaded =
-                                    snapshot.data ?? false;
-                                final bool isDownloading = _downloadProgress
-                                    .containsKey(record.audioPath.toString());
+                            ),
+                          ),
+                          title: Text(
+                            record.audioName.toString(),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Text(record.mySpaceDate.toString()),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              FutureBuilder<bool>(
+                                future: _downloadManager.isDownloaded(
+                                  record.audioPath.toString(),
+                                ),
+                                builder: (context, snapshot) {
+                                  final bool isDownloaded =
+                                      snapshot.data ?? false;
+                                  final bool isDownloading = _downloadProgress
+                                      .containsKey(record.audioPath.toString());
 
-                                if (isDownloading) {
-                                  return SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: CircularProgressIndicator(
-                                      value:
-                                          _downloadProgress[record.audioPath
-                                              .toString()],
-                                      strokeWidth: 2,
-                                      color: primaryColor,
+                                  if (isDownloading) {
+                                    return SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(
+                                        value:
+                                            _downloadProgress[record.audioPath
+                                                .toString()],
+                                        strokeWidth: 2,
+                                        color: primaryColor,
+                                      ),
+                                    );
+                                  } else if (!isDownloaded) {
+                                    return IconButton(
+                                      icon: const Icon(
+                                        Icons.download,
+                                        color: primaryColor,
+                                      ),
+                                      onPressed:
+                                          () => _downloadAudio(
+                                            record.audioPath.toString(),
+                                            record.audioName.toString(),
+                                            record.coverImageUrl.toString(),
+                                          ),
+                                    );
+                                  }
+                                  return const SizedBox(width: 48);
+                                },
+                              ),
+                              const SizedBox(width: 8),
+                              IconButton(
+                                onPressed: () {
+                                  BlocProvider.of<MySpaceBloc>(context).add(
+                                    DeleteMySpaceRecordsFromServerEvent(
+                                      mySpaceKey: record.mySpaceKey.toString(),
+                                      mySpaceType:
+                                          widget.mySpaceType.toString(),
+                                      context: context,
                                     ),
                                   );
-                                } else if (!isDownloaded) {
-                                  return IconButton(
-                                    icon: const Icon(
-                                      Icons.download,
-                                      color: primaryColor,
-                                    ),
-                                    onPressed:
-                                        () => _downloadAudio(
-                                          record.audioPath.toString(),
-                                          record.audioName.toString(),
-                                        ),
-                                  );
-                                }
-                                return const SizedBox(width: 48);
-                              },
-                            ),
-                            const SizedBox(width: 8),
-                            IconButton(
-                              onPressed: () {
-                                BlocProvider.of<MySpaceBloc>(context).add(
-                                  DeleteMySpaceRecordsFromServerEvent(
-                                    mySpaceKey: record.mySpaceKey.toString(),
-                                    mySpaceType: widget.mySpaceType.toString(),
-                                    context: context,
-                                  ),
-                                );
-                                setState(() {
-                                  mySpaceList.record!.removeAt(index);
-                                });
-                              },
-                              icon: const Icon(Icons.delete),
-                            ),
-                          ],
+                                  setState(() {
+                                    mySpaceList.record!.removeAt(index);
+                                  });
+                                },
+                                icon: const Icon(Icons.delete),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );

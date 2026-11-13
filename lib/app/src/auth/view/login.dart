@@ -274,17 +274,28 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   }
 
   loginButton() {
-    return BlocConsumer<AuthBloc, AuthState>(
+    return BlocConsumer(
       bloc: _authBloc,
-      // listenWhen: (previous, current) => current is AuthActionState,
-      // Remove buildWhen or modify it to handle loading states
-      // buildWhen: (previous, current) => current is! AuthActionState,
       listener: (context, state) {
-        // if (state is NavigateUserOnSuffaHomeActionState) {
-        //   GoRouter.of(context).goNamed(BottomBar.routeName);
-        // }
+        if (state is AuthSuffaUserLoginSuccessState) {
+          if (state.loginEntity.record?.status == 1) {
+            CustomSnackBar.show(
+              context: context,
+              message: state.loginEntity.record!.message.toString(),
+              type: SnackBarType.success,
+            );
+            GoRouter.of(context).goNamed(BottomBar.routeName);
+          } else {
+            CustomSnackBar.show(
+              context: context,
+              message: state.loginEntity.record!.message.toString(),
+              type: SnackBarType.error,
+            );
+          }
+        }
+
         if (state is AuthSuffaUserLoginFailureState) {
-          return CustomSnackBar.show(
+          CustomSnackBar.show(
             context: context,
             message: state.error,
             type: SnackBarType.error,
@@ -292,32 +303,33 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
         }
       },
       builder: (context, state) {
+        if (state is AuthLoadingState) {
+          return const SizedBox(
+            height: 20,
+            width: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          );
+        }
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: fixPadding * 5.0),
           child: InkWell(
             borderRadius: BorderRadius.circular(5),
-            onTap:
-                state is AuthLoadingState
-                    ? null
-                    : () {
-                      if (_formKey.currentState!.validate()) {
-                        _authBloc.add(
-                          AuthSuffaUserLoginEvent(
-                            email: emailController.text,
-                            password: passwordController.text,
-                            context: context,
-                          ),
-                        );
-                      }
-                    },
+            onTap: () {
+              if (_formKey.currentState!.validate()) {
+                _authBloc.add(
+                  AuthSuffaUserLoginEvent(
+                    email: emailController.text.trim(),
+                    password: passwordController.text.trim(),
+                    context: context,
+                  ),
+                );
+              }
+            },
             child: Container(
               padding: const EdgeInsets.all(fixPadding * 1.5),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color:
-                    state is AuthLoadingState
-                        ? primaryColor.withOpacity(0.7)
-                        : primaryColor,
+                color: primaryColor,
                 borderRadius: BorderRadius.circular(5),
                 boxShadow: [
                   BoxShadow(
@@ -327,19 +339,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                   ),
                 ],
               ),
-              child:
-                  state is AuthLoadingState
-                      ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
-                          strokeWidth: 2,
-                        ),
-                      )
-                      : Text('Login', style: white18SemiBoldTextStyle),
+              child: Text('Login', style: white18SemiBoldTextStyle),
             ),
           ),
         );

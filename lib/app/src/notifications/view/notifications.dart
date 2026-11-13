@@ -7,7 +7,6 @@ import 'package:haqvox/app/constant/constant.dart';
 import 'package:haqvox/app/core/widgets/appbar.dart';
 import 'package:haqvox/app/services/connectivity.dart';
 import 'package:haqvox/app/src/global/bloc/global_bloc.dart';
-import 'package:haqvox/app/src/myspace/view/myspace.dart';
 import 'package:haqvox/app/src/myspace/view/offline_download.dart';
 
 class Notifications extends StatefulWidget {
@@ -139,7 +138,7 @@ class _NotificationsState extends State<Notifications> {
                                 Container(
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: primaryColor.withOpacity(0.1),
+                                    color: primaryColor.withValues(alpha:0.1),
                                     shape: BoxShape.circle,
                                   ),
                                   child: Icon(

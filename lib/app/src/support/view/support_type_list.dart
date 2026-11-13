@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:haqvox/app/constant/constant.dart';
 import 'package:haqvox/app/core/widgets/appbar.dart';
 import 'package:haqvox/app/services/connectivity.dart';
-import 'package:haqvox/app/src/myspace/view/myspace.dart';
 import 'package:haqvox/app/src/myspace/view/offline_download.dart';
 import 'package:haqvox/app/src/support/bloc/ticket_bloc.dart';
 
@@ -117,7 +116,7 @@ class _AllSupportListState extends State<AllSupportList> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.08),
+            color: Colors.grey.withValues(alpha:0.08),
             spreadRadius: 2,
             blurRadius: 15,
             offset: const Offset(0, 3),
@@ -136,7 +135,7 @@ class _AllSupportListState extends State<AllSupportList> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: primaryColor.withOpacity(0.1),
+                    color: primaryColor.withValues(alpha:0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(icon, size: 28, color: primaryColor),

@@ -32,7 +32,6 @@ class AppShell extends StatelessWidget {
       '/notifications',
       '/faq',
       OfflineDownloads.routeName,
-      // Add any other routes where you don't want the mini player
     ];
 
     return !excludedRoutes.contains(currentRoute);
@@ -168,7 +167,7 @@ class _ModernMiniPlayerState extends State<_ModernMiniPlayer> {
               color: _dominantColor ?? Theme.of(context).primaryColor,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.15),
+                  color: Colors.black.withValues(alpha: 0.15),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -182,7 +181,7 @@ class _ModernMiniPlayerState extends State<_ModernMiniPlayer> {
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
-                        color: Colors.white.withOpacity(0.08),
+                        color: Colors.white.withValues(alpha: 0.08),
                       ),
                     ),
                   ),
@@ -246,7 +245,7 @@ class _ModernMiniPlayerState extends State<_ModernMiniPlayer> {
                               borderRadius: BorderRadius.circular(8),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
+                                  color: Colors.black.withValues(alpha: 0.2),
                                   blurRadius: 4,
                                 ),
                               ],
@@ -307,36 +306,61 @@ class _ModernMiniPlayerState extends State<_ModernMiniPlayer> {
                           stream: playerService.playbackState,
                           builder: (context, snapshot) {
                             final playing = snapshot.data?.playing ?? false;
-                            return SizedBox(
-                              width: 48,
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      playing
-                                          ? playerService.pause()
-                                          : playerService.play();
-                                    },
-                                    child: Icon(
-                                      playing
-                                          ? Icons.pause_rounded
-                                          : Icons.play_arrow_rounded,
-                                      color: Colors.white,
-                                      size: 22,
-                                    ),
+                            return Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  width: 48,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          playing
+                                              ? playerService.pause()
+                                              : playerService.play();
+                                        },
+                                        child: Icon(
+                                          playing
+                                              ? Icons.pause_rounded
+                                              : Icons.play_arrow_rounded,
+                                          color: Colors.white,
+                                          size: 22,
+                                        ),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () => playerService.skipToNext(),
+                                        child: const Icon(
+                                          Icons.skip_next_rounded,
+                                          color: Colors.white,
+                                          size: 22,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  GestureDetector(
-                                    onTap: () => playerService.skipToNext(),
-                                    child: const Icon(
-                                      Icons.skip_next_rounded,
-                                      color: Colors.white,
-                                      size: 22,
-                                    ),
+                                ),
+                                IconButton(
+                                  tooltip: 'Close player',
+                                  constraints: const BoxConstraints.tightFor(
+                                    width: 40,
+                                    height: 40,
                                   ),
-                                ],
-                              ),
+                                  padding: EdgeInsets.zero,
+                                  icon: const Icon(
+                                    Icons.close_rounded,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                  onPressed: () async {
+                                    await playerService.clearQueue();
+                                    if (!mounted) return;
+                                    setState(() {
+                                      _isClosed = true;
+                                    });
+                                  },
+                                ),
+                              ],
                             );
                           },
                         ),

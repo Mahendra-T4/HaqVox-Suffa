@@ -185,9 +185,9 @@ class _RecentPlayState extends State<RecentPlay> {
                               ),
                               child: Material(
                                 elevation: 2,
-                                shadowColor: Colors.black.withOpacity(0.1),
+                                shadowColor: Colors.black.withValues(alpha:0.1),
                                 borderRadius: BorderRadius.circular(15),
-                                color: Colors.grey.withOpacity(.3),
+                                color: Colors.grey.withValues(alpha:.3),
                                 child: InkWell(
                                   borderRadius: BorderRadius.circular(15),
                                   onTap: () async {
@@ -218,7 +218,7 @@ class _RecentPlayState extends State<RecentPlay> {
                                           width: 60,
                                           height: 60,
                                           decoration: BoxDecoration(
-                                            color: primaryColor.withOpacity(
+                                            color: primaryColor.withValues(alpha:
                                               0.1,
                                             ),
                                             borderRadius: BorderRadius.circular(

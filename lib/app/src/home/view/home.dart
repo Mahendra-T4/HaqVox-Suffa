@@ -1,8 +1,6 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:haqvox/app/assets/assets.dart';
 import 'package:haqvox/app/constant/constant.dart';
@@ -19,9 +17,10 @@ import 'package:haqvox/app/src/home/view/eBook%20List/ebook_listview.dart';
 import 'package:haqvox/app/src/home/view/widgets/home_builder.dart';
 import 'package:haqvox/app/src/home/widgets/recent_plays_widget.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:haqvox/app/src/myspace/view/myspace.dart';
 import 'package:haqvox/app/src/myspace/view/offline_download.dart';
 import 'package:haqvox/app/src/notifications/view/notifications.dart';
+
+
 
 class Home extends StatefulWidget {
   static const String routeName = '/home';
@@ -37,7 +36,7 @@ class _HomeState extends HomeBuilder with WidgetsBindingObserver {
 
   dynamic name;
   // String? uKey;
-  String? uSubscription;
+  int? uSubscription;
 
   Future<void> initName() async {
     try {
@@ -80,16 +79,6 @@ class _HomeState extends HomeBuilder with WidgetsBindingObserver {
     super.dispose();
   }
 
-  // @override
-  // void didChangeAppLifecycleState(AppLifecycleState state) {
-  //   // Reload user data when app comes to foreground
-  //   // This handles the case when user logs in and returns to home
-  //   if (state == AppLifecycleState.resumed) {
-  //     debugPrint('App resumed - refreshing user data');
-  //     initName();
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     height = MediaQuery.of(context).size.height;
@@ -116,12 +105,12 @@ class _HomeState extends HomeBuilder with WidgetsBindingObserver {
           appBar: AppBar(
             automaticallyImplyLeading: false,
             backgroundColor: primaryColor,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20),
-              ),
-            ),
+            // shape: const RoundedRectangleBorder(
+            //   borderRadius: BorderRadius.only(
+            //     bottomLeft: Radius.circular(20),
+            //     bottomRight: Radius.circular(20),
+            //   ),
+            // ),
             leading: Container(
               margin: const EdgeInsets.only(left: fixPadding * 2.0),
               decoration: const BoxDecoration(
@@ -152,7 +141,12 @@ class _HomeState extends HomeBuilder with WidgetsBindingObserver {
                     onPressed: () {
                       GoRouter.of(context).pushNamed(Login.routeName);
                     },
-                    icon: Icon(FontAwesomeIcons.signIn, color: whiteColor),
+                    icon: Image.asset(
+                      Assets.loginImage,
+                      height: 30,
+                      width: 30,
+                      color: whiteColor,
+                    ),
                   ),
               widthSpace,
             ],
@@ -193,7 +187,7 @@ class _HomeState extends HomeBuilder with WidgetsBindingObserver {
                             ),
                           ),
                           SizedBox(
-                            height: height! * 0.086,
+                            height: height! * 0.120,
                             child: ListView.builder(
                               physics: const BouncingScrollPhysics(),
                               scrollDirection: Axis.horizontal,
@@ -234,44 +228,34 @@ class _HomeState extends HomeBuilder with WidgetsBindingObserver {
                                                   .categoryName,
                                         ),
                                       );
-                                      // Navigator.push(
-                                      //     context,
-                                      //     MaterialPageRoute(
-                                      //         builder: (_) => GenersBooks(
-                                      //             eBookListParams:
-                                      //                 EBookListParams(
-                                      //                     categorySlug:
-                                      //                         successState
-                                      //                             .record!
-                                      //                             .categoryList[
-                                      //                                 index]
-                                      //                             .categorySlug,
-                                      //                     title: successState
-                                      //                         .record!
-                                      //                         .categoryList[index]
-                                      //                         .categoryName))));
                                     },
-                                    child: Container(
-                                      height: height! * 0.086,
-                                      width: width! * 0.21,
-                                      alignment: Alignment.center,
-                                      decoration: BoxDecoration(
-                                        color: primaryColor,
-                                        borderRadius: BorderRadius.circular(5),
-                                      ),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          CachedNetworkImage(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          height: height! * 0.086,
+                                          width: width! * 0.21,
+                                          padding: const EdgeInsets.all(8),
+                                          clipBehavior: Clip.antiAlias,
+                                          alignment: Alignment.center,
+
+                                          decoration: BoxDecoration(
+                                            color: primaryColor,
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                          ),
+                                          child: CachedNetworkImage(
                                             imageUrl:
                                                 successState
                                                     .record!
                                                     .categoryList[index]
                                                     .categoryIcon
                                                     .toString(),
-                                            height: 30,
-                                            width: 30,
+                                            // height: 50,
+                                            // width: 50,
+                                            fit: BoxFit.cover,
                                             placeholder:
                                                 (
                                                   context,
@@ -279,6 +263,7 @@ class _HomeState extends HomeBuilder with WidgetsBindingObserver {
                                                 ) => const SizedBox(
                                                   height: 30,
                                                   width: 30,
+
                                                   child: Center(
                                                     child:
                                                         CircularProgressIndicator(
@@ -292,16 +277,16 @@ class _HomeState extends HomeBuilder with WidgetsBindingObserver {
                                                   size: 30,
                                                 ),
                                           ),
-                                          heightSpace,
-                                          Text(
-                                            successState
-                                                .record!
-                                                .categoryList[index]
-                                                .categoryName,
-                                            style: white14MediumTextStyle,
-                                          ),
-                                        ],
-                                      ),
+                                        ),
+                                        heightSpace,
+                                        Text(
+                                          successState
+                                              .record!
+                                              .categoryList[index]
+                                              .categoryName,
+                                          style: primaryColor14MediumTextStyle,
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 );

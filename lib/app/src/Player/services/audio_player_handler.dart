@@ -437,6 +437,29 @@ class AudioPlayerHandler extends BaseAudioHandler
     }
   }
 
+  Future<void> clearQueue() async {
+    try {
+      await _player.stop();
+      await updateQueue([]);
+      await _queueBox?.delete(_queueKey);
+      await _queueBox?.delete(_queueIndexKey);
+      await super.stop();
+      playbackState.add(
+        playbackState.value.copyWith(
+          controls: [],
+          processingState: AudioProcessingState.idle,
+          playing: false,
+          updatePosition: Duration.zero,
+          bufferedPosition: Duration.zero,
+          queueIndex: 0,
+        ),
+      );
+    } catch (e, stack) {
+      _logger.severe('Error clearing playback queue', e, stack);
+      rethrow;
+    }
+  }
+
   // Queue management
   @override
   Future<void> addQueueItems(List<MediaItem> mediaItems) async {

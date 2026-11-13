@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:haqvox/app/constant/constant.dart';
 import 'package:haqvox/app/core/database/user/hive_db.dart';
 import 'package:haqvox/app/core/widgets/appbar.dart';
 import 'package:haqvox/app/services/connectivity.dart';
+import 'package:haqvox/app/src/downloads/services/download_manager.dart';
 import 'package:haqvox/app/src/myspace/bloc/my_space_bloc.dart';
 import 'package:haqvox/app/src/myspace/view/offline_download.dart';
 import 'package:haqvox/app/src/myspace/view/widgets/downloads_tab.dart';
@@ -21,9 +21,11 @@ class MySpace extends StatefulWidget {
 class _MySpaceState extends State<MySpace> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late final MySpaceBloc _mySpaceBloc;
+
   // bool isInternetConnected = false;
   // String? uKey;
   Timer? _updateTimer;
+  Timer? _timer;
   bool _disposed = false;
   StreamSubscription? _connectivitySubscription;
 
@@ -44,41 +46,27 @@ class _MySpaceState extends State<MySpace> with SingleTickerProviderStateMixin {
     }
   }
 
-  // void _setupConnectivityListener() {
-  //   _connectivitySubscription = Connectivity().onConnectivityChanged.listen((
-  //     result,
-  //   ) {
-  //     if (_disposed) return;
-  //     final isConnected = result != ConnectivityResult.none;
-  //     if (isConnected != isInternetConnected) {
-  //       setState(() {
-  //         isInternetConnected = isConnected;
-  //       });
-  //       // Fetch data when connection is restored
-  //       if (isConnected) {
-  //         initUser();
-  //       }
-  //     }
-  //   });
-  // }
+  clearAllDownloads() async {
+    final DownloadManager _downloadManager = DownloadManager();
+    _timer = Timer.periodic(Duration(seconds: 3), (timer) async {
+      if (HiveService.getUserId() == '') {
+        await _downloadManager.deleteAllDownloads();
+        // setState(() {});
+      }
+    });
+    // await _downloadManager.deleteAllDownloads();
+    // setState(() {});
+  }
+
 
   @override
   void initState() {
     super.initState();
     _disposed = false;
+
     _tabController = TabController(length: 3, vsync: this);
     _mySpaceBloc = MySpaceBloc();
-
-    // Check initial connection status
-    // _setupConnectivityListener();
-    // InternetConnectionHelper().checkInternetConnection().then((connected) {
-    //   if (!_disposed) {
-    //     setState(() {
-    //       isInternetConnected = connected;
-    //     });
-    //     initUser();
-    //   }
-    // });
+    clearAllDownloads();
 
     // Periodic data refresh every 30 seconds
     _updateTimer = Timer.periodic(
@@ -132,7 +120,7 @@ class _MySpaceState extends State<MySpace> with SingleTickerProviderStateMixin {
                         borderRadius: BorderRadius.circular(25),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 20,
                             offset: const Offset(0, 4),
                           ),

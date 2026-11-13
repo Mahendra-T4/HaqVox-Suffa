@@ -239,6 +239,7 @@ class MusicPlayerService {
   Future<void> play() => _handler.play();
   Future<void> pause() => _handler.pause();
   Future<void> stop() => _handler.stop();
+  Future<void> clearQueue() => _handler.clearQueue();
   Future<void> skipToNext() => _handler.skipToNext();
   Future<void> skipToPrevious() => _handler.skipToPrevious();
   Future<void> seek(Duration position) => _handler.seek(position);

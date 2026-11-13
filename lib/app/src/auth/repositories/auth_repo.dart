@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:haqvox/app/config/environment.dart';
@@ -30,109 +31,69 @@ abstract class AuthRepository {
     String password,
     BuildContext context,
   ) async {
+    LoginEntity loginEntity = LoginEntity();
+    final body = {
+      'activity': 'login',
+      'uEmail': email.trim(),
+      'uPassword': password.trim(),
+    };
     try {
-      final url = Uri.parse(Environment.baseUrl);
-      final body = ({
-        'activity': 'login',
-        'uEmail': email,
-        'uPassword': password,
-      });
-      final response = await client.post(url, body: body);
+      final response = await http.post(url, body: body);
+
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
-        final loginEntity = LoginEntity.fromJson(jsonResponse);
-
-        if (loginEntity.status == 1 && loginEntity.record != null) {
-          // Save user data to SharedPreferences
-
+        loginEntity = LoginEntity.fromJson(jsonResponse);
+        if (loginEntity.record?.status == 1) {
           await HiveService.setter(key: DBKeys.isLoggedIn, value: true);
           await HiveService.setter(
             key: DBKeys.userKey,
-            value: loginEntity.record!.userKey,
+            value: loginEntity.record?.userKey,
           );
           await HiveService.setter(
             key: DBKeys.uFirstName,
-            value: loginEntity.record!.uFirstName,
+            value: loginEntity.record?.uFirstName,
           );
           await HiveService.setter(
             key: DBKeys.uLastName,
-            value: loginEntity.record!.uLastName,
+            value: loginEntity.record?.uLastName,
           );
           await HiveService.setter(
             key: DBKeys.uEmail,
-            value: loginEntity.record!.uEmail,
+            value: loginEntity.record?.uEmail,
           );
           await HiveService.setter(
             key: DBKeys.uMobile,
-            value: loginEntity.record!.uMobile,
+            value: loginEntity.record?.uMobile,
           );
           await HiveService.setter(
             key: DBKeys.uSubscriptionKey,
-            value: loginEntity.record!.uSubscription,
+            value: loginEntity.record?.uSubscription,
           );
-          if (loginEntity.record!.uAlternateNumber != null) {
-            await HiveService.setter(
-              key: DBKeys.uAlternateNumber,
-              value: loginEntity.record!.uAlternateNumber,
-            );
-          }
-          if (loginEntity.record!.uDOB != null) {
-            await HiveService.setter(
-              key: DBKeys.uDOB,
-              value: loginEntity.record!.uDOB,
-            );
-          }
-
-          //  await HiveService.setter(
-          //   key: DBKeys.imageKey,
-          //   value: loginEntity.record!.,
-          // );
-
-          if (loginEntity.record!.uGender != null) {
-            await HiveService.setter(
-              key: DBKeys.uGender,
-              value: loginEntity.record!.uGender,
-            );
-          }
-
-          debugPrint('✅ User data saved: ${loginEntity.record?.userKey}');
-
-          GoRouter.of(context).goNamed(BottomBar.routeName);
-
-          CustomSnackBar.show(
-            context: context,
-            message: loginEntity.message.toString(),
-            type: SnackBarType.success,
+          await HiveService.setter(
+            key: DBKeys.uAlternateNumber,
+            value: loginEntity.record?.uAlternateNumber,
           );
+          await HiveService.setter(
+            key: DBKeys.uDOB,
+            value: loginEntity.record?.uDOB,
+          );
+
+          await HiveService.setter(
+            key: DBKeys.uGender,
+            value: loginEntity.record?.uGender,
+          );
+
+          log('✅ User Login Response: ${response.body}');
+          log('✅ User Login Body: $body');
         } else {
-          CustomSnackBar.show(
-            context: context,
-            message: loginEntity.message ?? 'Login failed',
-            type: SnackBarType.error,
-          );
+          log('✅ User Login Failed Message: ${loginEntity.record?.message}');
+          log('✅ User Login Body: $body');
         }
-
-        return loginEntity;
-      } else {
-        CustomSnackBar.show(
-          context: context,
-          message: 'Login failed. Please check your credentials.',
-          type: SnackBarType.error,
-        );
-        return LoginEntity(
-          status: 0,
-          message: 'Login failed. Please check your credentials.',
-        );
       }
     } catch (e) {
       log('Login Repository Error: $e');
-      CustomSnackBar.show(
-        context: context,
-        message: 'An error occurred. Please try again.',
-        type: SnackBarType.error,
-      );
-      return LoginEntity(status: 0, message: e.toString());
     }
+    return loginEntity;
   }
 
   static Future<RegisterEntity> signUpWithEmailAndPassword(
@@ -270,7 +231,7 @@ abstract class AuthRepository {
       OTPVerificationEntity otpVerificationEntity = OTPVerificationEntity();
       final response = await client.post(
         url,
-        body: {'activity': 'otp-verification', 'uOTP': uOTP, 'rKey': rKey},
+        body: {'activity': 'otp-verify', 'uOTP': uOTP, 'rKey': rKey},
       );
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
@@ -320,7 +281,7 @@ abstract class AuthRepository {
       final response = await client.post(
         url,
         body: {
-          'activity': 'set-password',
+          'activity': 'reset-password',
           'newPassword': newPass,
           'confirmPassword': confPass,
           'rKey': rKey.toString(),
@@ -430,7 +391,7 @@ abstract class AuthRepository {
       final response = await http.post(
         url,
         body: {
-          'activity': 'forget-password',
+          'activity': 'forgot-password',
           'uMobile': uMobile.trim().toString(),
         },
       );

@@ -38,7 +38,11 @@ abstract class MySpaceRepository {
         final jsonResponse = jsonDecode(response.body);
         addOnMySpaceEntity = AddOnMySpaceEntity.fromJson(jsonResponse);
         log(response.body);
-        log('Audio added to my space Response: ${addOnMySpaceEntity.message}');
+        if (addOnMySpaceEntity.status == 1) {
+          log('Audio added to My Space: ${addOnMySpaceEntity.message}');
+        } else {
+          log('Audio was not added to My Space: ${addOnMySpaceEntity.message}');
+        }
         return AddOnMySpaceEntity.fromJson(jsonResponse);
       } else {
         log('Failed to add audio to my space');

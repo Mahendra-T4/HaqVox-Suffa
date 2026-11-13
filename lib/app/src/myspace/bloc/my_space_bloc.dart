@@ -16,29 +16,48 @@ class MySpaceBloc extends Bloc<MySpaceEvent, MySpaceState> {
     on<AddOnMySpaceEvent>(_addOnMySpaceEvent);
     on<FetchMySpaceListFromServerEvent>(_fetchMySpaceListFromServerEvent);
     on<DeleteMySpaceRecordsFromServerEvent>(
-        _deleteMySpaceRecordsFromServerEvent);
+      _deleteMySpaceRecordsFromServerEvent,
+    );
   }
 
   FutureOr<void> _addOnMySpaceEvent(
-      AddOnMySpaceEvent event, Emitter<MySpaceState> emit) async {
+    AddOnMySpaceEvent event,
+    Emitter<MySpaceState> emit,
+  ) async {
     emit(MySpaceLoadingState());
     try {
       final addOnMySpace = await MySpaceRepository.addAudioOnMySpace(
-          event.audioSlug, event.mySpaceType, event.context);
-      emit(AddMySpaceLoadedSuccessState(addOnMySpaceEntity: addOnMySpace));
+        event.audioSlug,
+        event.mySpaceType,
+        event.context,
+      );
+      emit(
+        AddMySpaceLoadedSuccessState(
+          addOnMySpaceEntity: addOnMySpace,
+          mySpaceType: event.mySpaceType,
+        ),
+      );
     } catch (e) {
-
       log('AddMySpaceError Bloc: $e');
-      emit(AddMySpaceFailedErrorState(error: e.toString()));
+      emit(
+        AddMySpaceFailedErrorState(
+          error: e.toString(),
+          mySpaceType: event.mySpaceType,
+        ),
+      );
     }
   }
 
   FutureOr<void> _fetchMySpaceListFromServerEvent(
-      FetchMySpaceListFromServerEvent event, Emitter<MySpaceState> emit) async {
+    FetchMySpaceListFromServerEvent event,
+    Emitter<MySpaceState> emit,
+  ) async {
     emit(MySpaceLoadingState());
     try {
-      final mySpaceList =
-          await MySpaceRepository.mySpaceList(event.mySpaceType, event.context);
+      final mySpaceList = await MySpaceRepository.mySpaceList(
+        event.mySpaceType,
+        event.context,
+      );
       emit(MySpaceListLoadedSuccessState(mySpaceListEntity: mySpaceList));
       // if (mySpaceList.status == 1) {
       //     CustomSnackBar.show(
@@ -58,12 +77,16 @@ class MySpaceBloc extends Bloc<MySpaceEvent, MySpaceState> {
   }
 
   FutureOr<void> _deleteMySpaceRecordsFromServerEvent(
-      DeleteMySpaceRecordsFromServerEvent event,
-      Emitter<MySpaceState> emit) async {
+    DeleteMySpaceRecordsFromServerEvent event,
+    Emitter<MySpaceState> emit,
+  ) async {
     emit(MySpaceLoadingState());
     try {
       final deleteMySpace = await MySpaceRepository.deleteMySpace(
-          event.mySpaceKey, event.mySpaceType, event.context);
+        event.mySpaceKey,
+        event.mySpaceType,
+        event.context,
+      );
       emit(DeleteMySpaceLoadedSuccessState(deleteMySpaceEntity: deleteMySpace));
     } catch (e) {
       log('DeleteMySpaceError Bloc: $e');

@@ -100,15 +100,15 @@ abstract class SubscriptionBuilder extends State<SubscriptionPlanView> {
         padding: const EdgeInsets.all(20),
         margin: const EdgeInsets.only(top: 10),
         decoration: BoxDecoration(
-          color: isSelected ? primaryColor.withOpacity(0.1) : Colors.white,
+          color: isSelected ? primaryColor.withValues(alpha:0.1) : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? primaryColor : Colors.grey.withOpacity(0.2),
+            color: isSelected ? primaryColor : Colors.grey.withValues(alpha:0.2),
             width: 2,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.05),
+              color: Colors.grey.withValues(alpha:0.05),
               spreadRadius: 2,
               blurRadius: 10,
               offset: const Offset(0, 2),
@@ -153,7 +153,7 @@ abstract class SubscriptionBuilder extends State<SubscriptionPlanView> {
                       color:
                           isSelected
                               ? primaryColor
-                              : Colors.grey.withOpacity(0.3),
+                              : Colors.grey.withValues(alpha:0.3),
                       width: 2,
                     ),
                   ),

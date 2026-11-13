@@ -10,12 +10,20 @@ final class MySpaceLoadingState extends MySpaceState {}
 
 final class AddMySpaceLoadedSuccessState extends MySpaceState {
   final AddOnMySpaceEntity addOnMySpaceEntity;
-  AddMySpaceLoadedSuccessState({required this.addOnMySpaceEntity});
+  final String mySpaceType;
+  AddMySpaceLoadedSuccessState({
+    required this.addOnMySpaceEntity,
+    required this.mySpaceType,
+  });
 }
 
 final class AddMySpaceFailedErrorState extends MySpaceState {
   final String error;
-  AddMySpaceFailedErrorState({required this.error});
+  final String mySpaceType;
+  AddMySpaceFailedErrorState({
+    required this.error,
+    required this.mySpaceType,
+  });
 }
 
 //! my space list

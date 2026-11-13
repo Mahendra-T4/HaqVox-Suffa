@@ -1,28 +1,25 @@
 class LoginEntity {
-  int? status;
-  String? message;
   Record? record;
 
-  LoginEntity({this.status, this.message, this.record});
+  LoginEntity({this.record});
 
   LoginEntity.fromJson(Map<String, dynamic> json) {
-    status = json['status'];
-    message = json['message'];
-    record = json['record'] != null ? Record.fromJson(json['record']) : null;
+    record =
+        json['record'] != null ? new Record.fromJson(json['record']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['status'] = status;
-    data['message'] = message;
-    if (record != null) {
-      data['record'] = record!.toJson();
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    if (this.record != null) {
+      data['record'] = this.record!.toJson();
     }
     return data;
   }
 }
 
 class Record {
+  int? status;
+  String? message;
   String? uCode;
   String? uFirstName;
   String? uLastName;
@@ -30,12 +27,16 @@ class Record {
   String? uMobile;
   String? uAlternateNumber;
   String? uDOB;
-  dynamic uGender;
+  String? uDOBText;
+  String? uGender;
   String? uGenderName;
-  dynamic uSubscription;
+  int? uSubscription;
+  String? subscriberStatus;
   String? userKey;
 
   Record({
+    this.status,
+    this.message,
     this.uCode,
     this.uFirstName,
     this.uLastName,
@@ -43,13 +44,17 @@ class Record {
     this.uMobile,
     this.uAlternateNumber,
     this.uDOB,
+    this.uDOBText,
     this.uGender,
     this.uGenderName,
     this.uSubscription,
+    this.subscriberStatus,
     this.userKey,
   });
 
   Record.fromJson(Map<String, dynamic> json) {
+    status = json['status'];
+    message = json['message'];
     uCode = json['uCode'];
     uFirstName = json['uFirstName'];
     uLastName = json['uLastName'];
@@ -57,25 +62,31 @@ class Record {
     uMobile = json['uMobile'];
     uAlternateNumber = json['uAlternateNumber'];
     uDOB = json['uDOB'];
+    uDOBText = json['uDOBText'];
     uGender = json['uGender'];
     uGenderName = json['uGenderName'];
     uSubscription = json['uSubscription'];
+    subscriberStatus = json['subscriberStatus'];
     userKey = json['userKey'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['uCode'] = uCode;
-    data['uFirstName'] = uFirstName;
-    data['uLastName'] = uLastName;
-    data['uEmail'] = uEmail;
-    data['uMobile'] = uMobile;
-    data['uAlternateNumber'] = uAlternateNumber;
-    data['uDOB'] = uDOB;
-    data['uGender'] = uGender;
-    data['uGenderName'] = uGenderName;
-    data['uSubscription'] = uSubscription;
-    data['userKey'] = userKey;
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['status'] = this.status;
+    data['message'] = this.message;
+    data['uCode'] = this.uCode;
+    data['uFirstName'] = this.uFirstName;
+    data['uLastName'] = this.uLastName;
+    data['uEmail'] = this.uEmail;
+    data['uMobile'] = this.uMobile;
+    data['uAlternateNumber'] = this.uAlternateNumber;
+    data['uDOB'] = this.uDOB;
+    data['uDOBText'] = this.uDOBText;
+    data['uGender'] = this.uGender;
+    data['uGenderName'] = this.uGenderName;
+    data['uSubscription'] = this.uSubscription;
+    data['subscriberStatus'] = this.subscriberStatus;
+    data['userKey'] = this.userKey;
     return data;
   }
 }

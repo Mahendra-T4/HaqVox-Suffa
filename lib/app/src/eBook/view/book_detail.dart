@@ -2,19 +2,18 @@ import 'dart:developer' as dev;
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:haqvox/app/assets/assets.dart';
 import 'package:haqvox/app/constant/constant.dart';
+import 'package:haqvox/app/core/database/user/hive_db.dart';
 import 'package:haqvox/app/services/connectivity.dart';
-import 'package:haqvox/app/services/no_internate_page.dart';
 import 'package:haqvox/app/src/eBook/bloc/e_book_bloc.dart';
 import 'package:haqvox/app/src/eBook/models/ebook_details_params.dart';
 import 'package:haqvox/app/src/eBook/view/ebook_chapter_audio_view_new.dart'
     as audio;
 import 'package:haqvox/app/src/eBook/view/widget/description.dart';
-import 'package:haqvox/app/src/myspace/view/myspace.dart';
+import 'package:haqvox/app/src/myspace/bloc/my_space_bloc.dart';
 import 'package:haqvox/app/src/myspace/view/offline_download.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -72,12 +71,12 @@ class _BookDetailState extends State<BookDetail> {
         return Scaffold(
           appBar: AppBar(
             automaticallyImplyLeading: false,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20),
-              ),
-            ),
+            // shape: const RoundedRectangleBorder(
+            //   borderRadius: BorderRadius.only(
+            //     bottomLeft: Radius.circular(20),
+            //     bottomRight: Radius.circular(20),
+            //   ),
+            // ),
             leading: IconButton(
               onPressed: () {
                 context.pop();
@@ -118,10 +117,11 @@ class _BookDetailState extends State<BookDetail> {
       child: Column(
         children: [
           Container(
-            height: height! * 0.18,
-            width: width! * 0.26,
+            height: 450,
+            width: 500,
+            clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
+              borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
                   offset: const Offset(0, 3),
@@ -141,8 +141,71 @@ class _BookDetailState extends State<BookDetail> {
           heightSpace,
           const SizedBox(height: 1),
           Text(widget.params.ebookTagline, style: grey12RegularTextStyle),
+          const SizedBox(height: fixPadding),
+          _addToMySpaceButton(),
         ],
       ),
+    );
+  }
+
+  Widget _addToMySpaceButton() {
+    return BlocConsumer<MySpaceBloc, MySpaceState>(
+      listener: (context, state) {
+        if (state is AddMySpaceLoadedSuccessState) {
+          final result = state.addOnMySpaceEntity;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result.message ?? 'Unable to update My Space'),
+              backgroundColor: result.status == 1 ? Colors.green : Colors.red,
+            ),
+          );
+        } else if (state is AddMySpaceFailedErrorState) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.error), backgroundColor: Colors.red),
+          );
+        }
+      },
+      builder: (context, state) {
+        final isAdding = state is MySpaceLoadingState;
+        // final data = state is AddMySpaceLoadedSuccessState;
+        return SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed:
+                isAdding
+                    ? null
+                    : () {
+                      if (HiveService.getUserId() == null ||
+                          HiveService.getUserId()!.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Please log in to add this book to My Space.',
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+                      context.read<MySpaceBloc>().add(
+                        AddOnMySpaceEvent(
+                          audioSlug: widget.params.ebookSlug,
+                          mySpaceType: '2',
+                          context: context,
+                        ),
+                      );
+                    },
+            icon:
+                isAdding
+                    ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                    : const Icon(Icons.bookmark_add_outlined),
+            label: Text(isAdding ? 'Adding...' : 'Add to My Space'),
+          ),
+        );
+      },
     );
   }
 
@@ -155,7 +218,7 @@ class _BookDetailState extends State<BookDetail> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 10,
             spreadRadius: 1,
           ),
@@ -189,7 +252,7 @@ class _BookDetailState extends State<BookDetail> {
                         isSelected == 'chapters'
                             ? [
                               BoxShadow(
-                                color: primaryColor.withOpacity(0.3),
+                                color: primaryColor.withValues(alpha: 0.3),
                                 blurRadius: 8,
                                 spreadRadius: 0,
                                 offset: const Offset(0, 2),
@@ -238,7 +301,7 @@ class _BookDetailState extends State<BookDetail> {
                         isSelected == 'about'
                             ? [
                               BoxShadow(
-                                color: primaryColor.withOpacity(0.3),
+                                color: primaryColor.withValues(alpha: 0.3),
                                 blurRadius: 8,
                                 spreadRadius: 0,
                                 offset: const Offset(0, 2),
@@ -353,6 +416,7 @@ class _BookDetailState extends State<BookDetail> {
                                   successState.record![index].chapterName
                                       .toString(),
                               image: widget.params.eBookImage,
+                              bookmarkStatus: widget.params.bookmarkStatus,
                             ),
                           );
                         },
@@ -365,7 +429,7 @@ class _BookDetailState extends State<BookDetail> {
                           ),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(7),
-                            color: Colors.grey.withOpacity(.4),
+                            color: Colors.grey.withValues(alpha: .4),
                           ),
                           child: Row(
                             spacing: 10,
@@ -613,7 +677,7 @@ class _BookDetailState extends State<BookDetail> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
+                      color: Colors.grey.withValues(alpha: 0.1),
                       spreadRadius: 1,
                       blurRadius: 10,
                     ),
@@ -656,71 +720,76 @@ class _BookDetailState extends State<BookDetail> {
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.grey.withOpacity(0.08),
+                            color: Colors.grey.withValues(alpha: 0.08),
                             spreadRadius: 1,
                             blurRadius: 10,
                             offset: const Offset(0, 2),
                           ),
                         ],
                       ),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        leading: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: primaryColor.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
+                      child: Material(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        clipBehavior: Clip.antiAlias,
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
                           ),
-                          child: Center(
-                            child: Text(
-                              '${index + 1}',
-                              style: GoogleFonts.poppins(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: primaryColor,
+                          leading: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: primaryColor.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Center(
+                              child: Text(
+                                '${index + 1}',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: primaryColor,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        title: Text(
-                          'Unknown Chapter',
-                          style: GoogleFonts.poppins(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black87,
+                          title: Text(
+                            'Unknown Chapter',
+                            style: GoogleFonts.poppins(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black87,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        subtitle: Text(
-                          'Duration: ',
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: Colors.grey[600],
+                          subtitle: Text(
+                            'Duration: ',
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
                           ),
-                        ),
-                        trailing: IconButton(
-                          icon: Icon(
-                            FontAwesomeIcons.play,
-                            size: 18,
-                            color: primaryColor,
+                          trailing: IconButton(
+                            icon: Icon(
+                              Icons.play_arrow,
+                              size: 18,
+                              color: primaryColor,
+                            ),
+                            onPressed: () {
+                              // Navigator.push(
+                              //   context,
+                              //   PageTransition(
+                              //     child: StartListening(
+                              //       image: widget.params.eBookImage,
+                              //       bookName: audio.chapterName ?? '',
+                              //     ),
+                              //     type: PageTransitionType.rightToLeft,
+                              //   ),
+                              // );
+                            },
                           ),
-                          onPressed: () {
-                            // Navigator.push(
-                            //   context,
-                            //   PageTransition(
-                            //     child: StartListening(
-                            //       image: widget.params.eBookImage,
-                            //       bookName: audio.chapterName ?? '',
-                            //     ),
-                            //     type: PageTransitionType.rightToLeft,
-                            //   ),
-                            // );
-                          },
                         ),
                       ),
                     );

@@ -5,6 +5,7 @@ import 'package:haqvox/app/core/widgets/appbar.dart';
 import 'package:haqvox/app/services/connectivity.dart';
 import 'package:haqvox/app/src/info/bloc/info_bloc.dart';
 import 'package:haqvox/app/src/myspace/view/myspace.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class InfoPage extends StatefulWidget {
   static const String routeName = '/terms';
@@ -17,12 +18,69 @@ class InfoPage extends StatefulWidget {
 }
 
 class _InfoPageState extends State<InfoPage> {
-  late InfoBloc _infoBloc;
+  late final InfoBloc _infoBloc;
+  late final WebViewController webController;
+  bool _isPageLoading = true;
+
   @override
   void initState() {
+    super.initState();
     _infoBloc = InfoBloc();
     _infoBloc.add(InfoTermAndConditionFetchingEvent(pageRole: widget.pageRole));
-    super.initState();
+
+    webController =
+        WebViewController()
+          ..setJavaScriptMode(JavaScriptMode.unrestricted)
+          ..setBackgroundColor(primaryColor)
+          ..setNavigationDelegate(
+            NavigationDelegate(
+              onPageStarted: (String url) {
+                if (mounted) {
+                  setState(() {
+                    _isPageLoading = true;
+                  });
+                }
+              },
+              onPageFinished: (String url) {
+                if (mounted) {
+                  setState(() {
+                    _isPageLoading = false;
+                  });
+                }
+              },
+              onWebResourceError: (WebResourceError error) {
+                if (mounted) {
+                  setState(() {
+                    _isPageLoading = false;
+                  });
+                }
+              },
+              onNavigationRequest: (NavigationRequest request) {
+                return NavigationDecision.navigate;
+              },
+            ),
+          );
+  }
+
+  @override
+  void dispose() {
+    _infoBloc.close();
+    super.dispose();
+  }
+
+  String getTitle() {
+    switch (widget.pageRole) {
+      case '1':
+        return 'About Us';
+      case '2':
+        return 'Terms & Conditions';
+      case '3':
+        return 'Privacy Policy';
+      case '4':
+        return 'Refund Policy';
+      default:
+        return 'Info';
+    }
   }
 
   @override
@@ -45,73 +103,61 @@ class _InfoPageState extends State<InfoPage> {
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
         }
-        return BlocBuilder(
+
+        return BlocConsumer<InfoBloc, InfoState>(
           bloc: _infoBloc,
-          builder: (context, state) {
-            switch (state.runtimeType) {
-              case const (InfoLoadingState):
-                return const Center(child: CircularProgressIndicator());
-              case const (InfoTermAndConditionSuccessState):
-                final blocSnapshot =
-                    (state as InfoTermAndConditionSuccessState)
-                        .termAndConditionEntity;
-                return Scaffold(
-                  appBar: customAppBar1(
-                    title:
-                        blocSnapshot.status == 1
-                            ? blocSnapshot.record!.pageHeading.toString()
-                            : '',
-                    context: context,
-                  ),
-                  body:
-                      blocSnapshot.status == 1
-                          ? SingleChildScrollView(
-                            child: _buildSection(
-                              content:
-                                  blocSnapshot.record!.pageDescription
-                                      .toString(),
-                            ),
-                          )
-                          : Center(
-                            child: Text(blocSnapshot.message.toString()),
-                          ),
-                );
-              case const (InfoTermAndConditionErrorState):
-                final error = (state as InfoTermAndConditionErrorState).error;
-                return Center(child: Text(error));
-              default:
-                return const SizedBox();
+          listener: (context, state) {
+            if (state is InfoTermAndConditionSuccessState) {
+              final rawUrl = state.termAndConditionEntity.pageURL;
+              if (rawUrl != null && rawUrl.isNotEmpty) {
+                final uri = Uri.tryParse(rawUrl);
+                if (uri != null && uri.hasScheme) {
+                  webController.loadRequest(uri);
+                }
+              }
             }
+          },
+          builder: (context, state) {
+            if (state is InfoLoadingState) {
+              return Scaffold(
+                appBar: customAppBar1(title: getTitle(), context: context),
+                body: const Center(child: CircularProgressIndicator()),
+              );
+            } else if (state is InfoTermAndConditionSuccessState) {
+              final blocSnapshot = state.termAndConditionEntity;
+              return Scaffold(
+                appBar: customAppBar1(
+                  title: blocSnapshot.status == 1 ? getTitle() : '',
+                  context: context,
+                ),
+                body:
+                    blocSnapshot.status == 1
+                        ? Stack(
+                          children: [
+                            WebViewWidget(controller: webController),
+                            if (_isPageLoading)
+                              const Center(child: CircularProgressIndicator()),
+                          ],
+                        )
+                        : Center(
+                          child: Text(
+                            blocSnapshot.message?.toString() ??
+                                'Failed to load content',
+                          ),
+                        ),
+              );
+            } else if (state is InfoTermAndConditionErrorState) {
+              final error = state.error;
+              return Scaffold(
+                appBar: customAppBar1(title: getTitle(), context: context),
+                body: Center(child: Text(error)),
+              );
+            }
+
+            return const SizedBox();
           },
         );
       },
     );
   }
-
-  Widget _buildSection({required String content}) {
-    return Padding(
-      padding: const EdgeInsets.only(
-        left: fixPadding * 2.0,
-        right: fixPadding * 2.0,
-        top: fixPadding * 2.0,
-        bottom: fixPadding * 9.0,
-      ),
-      child: Text(content, style: grey14RegularTextStyle),
-    );
-  }
-
-  // Unused UI builder methods - kept for potential future use
-  // Widget _buildDivider() {
-  //   return Padding(
-  //     padding: const EdgeInsets.symmetric(vertical: fixPadding),
-  //     child: Divider(color: greyColor.withOpacity(0.3), thickness: 1),
-  //   );
-  // }
-  //
-  // Widget _buildLastUpdated() {
-  //   return Padding(
-  //     padding: const EdgeInsets.only(top: fixPadding * 2.0),
-  //     child: Text('Last updated: May 8, 2025', style: grey12RegularTextStyle),
-  //   );
-  // }
 }

@@ -55,7 +55,7 @@ class _SplashState extends State<Splash> {
                 decoration: BoxDecoration(
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.18),
+                      color: Colors.black.withValues(alpha:0.18),
                       blurRadius: 32,
                       offset: const Offset(0, 12),
                     ),
@@ -80,7 +80,7 @@ class _SplashState extends State<Splash> {
                   letterSpacing: 2.5,
                   shadows: [
                     Shadow(
-                      color: Colors.black.withOpacity(0.25),
+                      color: Colors.black.withValues(alpha:0.25),
                       blurRadius: 8,
                       offset: Offset(0, 2),
                     ),

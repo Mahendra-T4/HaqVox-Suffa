@@ -7,17 +7,15 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:get_it/get_it.dart';
 import 'package:haqvox/app/assets/assets.dart';
 import 'package:haqvox/app/constant/constant.dart';
-import 'package:haqvox/app/core/database/key.dart';
-import 'package:haqvox/app/core/database/shared_prefs_config.dart';
 import 'package:haqvox/app/core/database/user/hive_db.dart';
 import 'package:haqvox/app/core/widgets/appbar.dart';
+import 'package:haqvox/app/core/widgets/custom_snackbar.dart';
 import 'package:haqvox/app/services/connectivity.dart';
-import 'package:haqvox/app/services/no_internate_page.dart';
 import 'package:haqvox/app/src/Player/services/music_player_service.dart';
 import 'package:haqvox/app/src/downloads/services/download_manager.dart';
 import 'package:haqvox/app/src/eBook/bloc/e_book_bloc.dart';
+import 'package:haqvox/app/src/eBook/view/widget/add_myspace_button.dart';
 import 'package:haqvox/app/src/myspace/bloc/my_space_bloc.dart';
-import 'package:haqvox/app/src/myspace/view/myspace.dart';
 import 'package:haqvox/app/src/myspace/view/offline_download.dart';
 
 class EBookChapterAudio extends StatefulWidget {
@@ -549,460 +547,572 @@ class _EBookChapterAudioState extends State<EBookChapterAudio>
               title: widget.audioParams.chapterTitle,
               context: context,
             ),
-            body: BlocConsumer<EBookBloc, EBookState>(
-              bloc: _eBookBloc,
+            body: BlocListener<MySpaceBloc, MySpaceState>(
+              bloc: _mySpaceBloc,
               listener: (context, state) {
-                // Handle state changes but don't affect playback
-              },
-              builder: (context, state) {
-                if (state is EBookLoadingState) {
-                  return const Center(
-                    child: CircularProgressIndicator.adaptive(),
-                  );
-                } else if (state is EBookChapterAudioLoadedSuccessState) {
-                  final successState = state.chapterAudioEntity;
-                  return Column(
-                    children: [
-                      // Header with image
-                      Container(
-                        height: 200,
-                        width: double.infinity,
-                        color: primaryColor.withOpacity(0.1),
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 120,
-                              height: 200,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child:
-                                    widget.audioParams.image != ''
-                                        ? Image.network(
-                                          widget.audioParams.image.toString(),
-                                          fit: BoxFit.cover,
-                                        )
-                                        : Image.asset(
-                                          Assets.defaulteBookCover,
-                                          fit: BoxFit.cover,
-                                        ),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    widget.audioParams.chapterTitle,
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    '${successState.record?.length ?? 0} Audio Lessons',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 16,
-                                      color: Colors.black54,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                if (state is AddMySpaceLoadedSuccessState &&
+                    state.mySpaceType == '2') {
+                  final result = state.addOnMySpaceEntity;
+                  final isDuplicate =
+                      result.message?.toLowerCase().contains('already added') ??
+                      false;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        isDuplicate
+                            ? 'This audio is already in My Space.'
+                            : result.message ?? 'Unable to update My Space.',
                       ),
-
-                      // Play All button
-                      if (successState.record != null &&
-                          successState.record!.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: ElevatedButton(
-                            onPressed: () => _playAudio(successState.record!),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: primaryColor,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.play_circle_fill,
-                                  color: Colors.white,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Play All',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                      // Audio list
-                      Expanded(
-                        child: ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          itemCount: successState.record?.length ?? 0,
-                          itemBuilder: (context, index) {
-                            final audio = successState.record![index];
-                            return StreamBuilder<MediaItem?>(
-                              stream: _playerService.currentTrack,
-                              builder: (context, currentTrackSnapshot) {
-                                final currentTrack = currentTrackSnapshot.data;
-                                final isCurrent =
-                                    currentTrack != null &&
-                                    currentTrack.id == audio.audioSlug;
-                                return StreamBuilder<PlaybackState>(
-                                  stream: _playerService.playbackState,
-                                  builder: (context, playbackSnapshot) {
-                                    final isPlaying =
-                                        playbackSnapshot.data?.playing ?? false;
-                                    return Container(
-                                      margin: const EdgeInsets.only(bottom: 8),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(12),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withOpacity(
-                                              0.05,
-                                            ),
-                                            blurRadius: 10,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ],
-                                      ),
-                                      child: ListTile(
-                                        onTap: () {
-                                          if (HiveService.getSubscription() ==
-                                              '1') {
-                                            BlocProvider.of<MySpaceBloc>(
-                                              context,
-                                            ).add(
-                                              AddOnMySpaceEvent(
-                                                audioSlug:
-                                                    successState
-                                                        .record![index]
-                                                        .audioSlug
-                                                        .toString(),
-                                                mySpaceType: '1',
-                                                context: context,
-                                              ),
-                                            );
-                                          }
-                                          _playAudio(
-                                            successState.record!,
-                                            index,
-                                          );
-                                        },
-                                        // contentPadding:
-                                        //     const EdgeInsets.fromLTRB(16, 12, 8, 12),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                        leading: SizedBox(
-                                          height: 48,
-                                          width: 48,
-
-                                          child: IconButton(
-                                            icon: Icon(
-                                              isCurrent && isPlaying
-                                                  ? Icons.pause_circle_filled
-                                                  : Icons.play_circle_fill,
-                                              color: primaryColor,
-                                              size: 35,
-                                            ),
-                                            onPressed: () async {
-                                              if (isCurrent && isPlaying) {
-                                                await _playerService.pause();
-                                              } else {
-                                                await _playAudio(
-                                                  successState.record!,
-                                                  index,
-                                                );
-                                              }
-                                            },
-                                          ),
-                                        ),
-                                        title: Text(
-                                          audio.audioName.toString(),
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w400,
-                                            color: Colors.black87,
-                                          ),
-                                        ),
-                                        subtitle: Padding(
-                                          padding: const EdgeInsets.only(
-                                            top: 4,
-                                          ),
-                                          child: Text(
-                                            widget.audioParams.chapterTitle,
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 13,
-                                              color: Colors.black54,
-                                            ),
-                                          ),
-                                        ),
-                                        trailing:
-                                            HiveService.getUserId() != null
-                                                ? Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    Material(
-                                                      color: Colors.transparent,
-                                                      child: InkWell(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              50,
-                                                            ),
-                                                        onTap: () {
-                                                          context.read<MySpaceBloc>().add(
-                                                            AddOnMySpaceEvent(
-                                                              audioSlug:
-                                                                  audio
-                                                                      .audioSlug
-                                                                      .toString(),
-                                                              mySpaceType: '2',
-                                                              context: context,
-                                                            ),
-                                                          );
-                                                        },
-                                                        child: Padding(
-                                                          padding:
-                                                              const EdgeInsets.all(
-                                                                8,
-                                                              ),
-                                                          child: Icon(
-                                                            Icons
-                                                                .bookmark_outline_rounded,
-                                                            color: primaryColor,
-                                                            size: 24,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 4),
-                                                    FutureBuilder<bool>(
-                                                      future: _downloadManager
-                                                          .isDownloaded(
-                                                            audio.audioPath
-                                                                .toString(),
-                                                          ),
-                                                      builder: (
-                                                        context,
-                                                        snapshot,
-                                                      ) {
-                                                        final bool
-                                                        isDownloaded =
-                                                            snapshot.data ??
-                                                            false;
-                                                        final bool
-                                                        isDownloading =
-                                                            _downloadManager
-                                                                .isDownloading(
-                                                                  audio
-                                                                      .audioPath
-                                                                      .toString(),
-                                                                );
-
-                                                        return Material(
-                                                          color:
-                                                              Colors
-                                                                  .transparent,
-                                                          child:
-                                                              isDownloading
-                                                                  ? Stack(
-                                                                    alignment:
-                                                                        Alignment
-                                                                            .center,
-                                                                    children: [
-                                                                      StreamBuilder<
-                                                                        double
-                                                                      >(
-                                                                        stream: _downloadManager.getDownloadProgressStream(
-                                                                          audio
-                                                                              .audioPath
-                                                                              .toString(),
-                                                                        ),
-                                                                        builder: (
-                                                                          context,
-                                                                          snapshot,
-                                                                        ) {
-                                                                          final progress =
-                                                                              snapshot.data ??
-                                                                              0.0;
-                                                                          return SizedBox(
-                                                                            width:
-                                                                                24,
-                                                                            height:
-                                                                                24,
-                                                                            child: CircularProgressIndicator(
-                                                                              value:
-                                                                                  progress,
-                                                                              strokeWidth:
-                                                                                  2,
-                                                                              color:
-                                                                                  primaryColor,
-                                                                            ),
-                                                                          );
-                                                                        },
-                                                                      ),
-                                                                      IconButton(
-                                                                        icon: Icon(
-                                                                          Icons
-                                                                              .cancel,
-                                                                          color:
-                                                                              Colors.red,
-                                                                          size:
-                                                                              18,
-                                                                        ),
-                                                                        padding:
-                                                                            EdgeInsets.zero,
-                                                                        constraints:
-                                                                            BoxConstraints(),
-                                                                        onPressed: () {
-                                                                          _downloadManager.cancelDownload(
-                                                                            audio.audioPath.toString(),
-                                                                          );
-                                                                        },
-                                                                        tooltip:
-                                                                            'Cancel Download',
-                                                                      ),
-                                                                    ],
-                                                                  )
-                                                                  : InkWell(
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                          50,
-                                                                        ),
-                                                                    onTap:
-                                                                        isDownloaded
-                                                                            ? null
-                                                                            : () {
-                                                                              _downloadAudio(
-                                                                                audio.audioPath.toString(),
-                                                                                '${audio.audioSlug}_${audio.audioName}.mp3',
-                                                                                audio.audioName.toString(),
-                                                                              ).then(
-                                                                                (
-                                                                                  save,
-                                                                                ) {
-                                                                                  BlocProvider.of<
-                                                                                    MySpaceBloc
-                                                                                  >(
-                                                                                    context,
-                                                                                  ).add(
-                                                                                    AddOnMySpaceEvent(
-                                                                                      audioSlug:
-                                                                                          successState.record![index].audioSlug.toString(),
-                                                                                      mySpaceType:
-                                                                                          '3',
-                                                                                      context:
-                                                                                          context,
-                                                                                    ),
-                                                                                  );
-                                                                                },
-                                                                              );
-                                                                            },
-                                                                    child: Padding(
-                                                                      padding:
-                                                                          const EdgeInsets.all(
-                                                                            8,
-                                                                          ),
-                                                                      child: Icon(
-                                                                        isDownloaded
-                                                                            ? Icons.download_done_rounded
-                                                                            : Icons.download_rounded,
-                                                                        color:
-                                                                            isDownloaded
-                                                                                ? Colors.green
-                                                                                : primaryColor,
-                                                                        size:
-                                                                            24,
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                        );
-                                                      },
-                                                    ),
-                                                  ],
-                                                )
-                                                : SizedBox(),
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                    ],
+                      backgroundColor:
+                          isDuplicate
+                              ? Colors.blueGrey
+                              : result.status == 1
+                              ? Colors.green
+                              : Colors.red,
+                    ),
                   );
-                } else if (state is EBookChapterAudioFailedToLoadErrorState) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.error_outline,
-                          size: 48,
-                          color: Colors.red,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          state.error,
-                          style: GoogleFonts.poppins(fontSize: 16),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () {
-                            _eBookBloc.add(
-                              EBookChapterAudioFetchingEvent(
-                                chapterSlug: widget.audioParams.chapterSlug,
-                                ebookSlug: widget.audioParams.ebookSlug,
-                              ),
-                            );
-                          },
-                          child: const Text('Retry'),
-                        ),
-                      ],
+                } else if (state is AddMySpaceFailedErrorState &&
+                    state.mySpaceType == '2') {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.error),
+                      backgroundColor: Colors.red,
                     ),
                   );
                 }
-                return const Center(child: Text('Something went wrong'));
               },
+              child: BlocConsumer<EBookBloc, EBookState>(
+                bloc: _eBookBloc,
+                listener: (context, state) {
+                  // Handle state changes but don't affect playback
+                },
+                builder: (context, state) {
+                  if (state is EBookLoadingState) {
+                    return const Center(
+                      child: CircularProgressIndicator.adaptive(),
+                    );
+                  } else if (state is EBookChapterAudioLoadedSuccessState) {
+                    final successState = state.chapterAudioEntity;
+                    return Column(
+                      children: [
+                        // Header with image
+                        Container(
+                          height: 200,
+                          width: double.infinity,
+                          color: primaryColor.withValues(alpha: 0.1),
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 120,
+                                height: 200,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.2,
+                                      ),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child:
+                                      widget.audioParams.image != ''
+                                          ? Image.network(
+                                            widget.audioParams.image.toString(),
+                                            fit: BoxFit.cover,
+                                          )
+                                          : Image.asset(
+                                            Assets.defaulteBookCover,
+                                            fit: BoxFit.cover,
+                                          ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      widget.audioParams.chapterTitle,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      '${successState.record?.length ?? 0} Audio Lessons',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 16,
+                                        color: Colors.black54,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Play All button
+                        if (successState.record != null &&
+                            successState.record!.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: ElevatedButton(
+                              onPressed: () => _playAudio(successState.record!),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: primaryColor,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.play_circle_fill,
+                                    color: Colors.white,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Play All',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                        // Audio list
+                        Expanded(
+                          child: ListView.builder(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            itemCount: successState.record?.length ?? 0,
+                            itemBuilder: (context, index) {
+                              final audio = successState.record![index];
+                              return StreamBuilder<MediaItem?>(
+                                stream: _playerService.currentTrack,
+                                builder: (context, currentTrackSnapshot) {
+                                  final currentTrack =
+                                      currentTrackSnapshot.data;
+                                  final isCurrent =
+                                      currentTrack != null &&
+                                      currentTrack.id == audio.audioSlug;
+                                  return StreamBuilder<PlaybackState>(
+                                    stream: _playerService.playbackState,
+                                    builder: (context, playbackSnapshot) {
+                                      final isPlaying =
+                                          playbackSnapshot.data?.playing ??
+                                          false;
+                                      return Container(
+                                        margin: const EdgeInsets.only(
+                                          bottom: 8,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withValues(
+                                                alpha: 0.05,
+                                              ),
+                                              blurRadius: 10,
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Material(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          clipBehavior: Clip.antiAlias,
+                                          child: ListTile(
+                                            onTap: () {
+                                              if (HiveService.getSubscription()
+                                                      .toString() ==
+                                                  '1') {
+                                                _mySpaceBloc.add(
+                                                  AddOnMySpaceEvent(
+                                                    audioSlug:
+                                                        successState
+                                                            .record![index]
+                                                            .audioSlug
+                                                            .toString(),
+                                                    mySpaceType: '1',
+                                                    context: context,
+                                                  ),
+                                                );
+                                              }
+                                              _playAudio(
+                                                successState.record!,
+                                                index,
+                                              );
+                                            },
+                                            // contentPadding:
+                                            //     const EdgeInsets.fromLTRB(16, 12, 8, 12),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            leading: SizedBox(
+                                              height: 48,
+                                              width: 48,
+
+                                              child: IconButton(
+                                                icon: Icon(
+                                                  isCurrent && isPlaying
+                                                      ? Icons
+                                                          .pause_circle_filled
+                                                      : Icons.play_circle_fill,
+                                                  color: primaryColor,
+                                                  size: 35,
+                                                ),
+                                                onPressed: () async {
+                                                  if (isCurrent && isPlaying) {
+                                                    await _playerService
+                                                        .pause();
+                                                  } else {
+                                                    await _playAudio(
+                                                      successState.record!,
+                                                      index,
+                                                    );
+                                                  }
+                                                },
+                                              ),
+                                            ),
+                                            title: Text(
+                                              audio.audioName.toString(),
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w400,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                            subtitle: Padding(
+                                              padding: const EdgeInsets.only(
+                                                top: 4,
+                                              ),
+                                              child: Text(
+                                                widget.audioParams.chapterTitle,
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 13,
+                                                  color: Colors.black54,
+                                                ),
+                                              ),
+                                            ),
+                                            trailing:
+                                                HiveService.getUserId() != null
+                                                    ? Row(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        AddMySpaceButton(
+                                                          audioSlug:
+                                                              audio.audioSlug
+                                                                  .toString(),
+                                                          mySpaceType: '2',
+                                                          audioBookmarked:
+                                                              audio
+                                                                  .audioBookmarked!,
+                                                          successCallback: () {
+                                                            _eBookBloc.add(
+                                                              EBookChapterAudioFetchingEvent(
+                                                                chapterSlug:
+                                                                    widget
+                                                                        .audioParams
+                                                                        .chapterSlug,
+                                                                ebookSlug:
+                                                                    widget
+                                                                        .audioParams
+                                                                        .ebookSlug,
+                                                              ),
+                                                            );
+                                                          },
+                                                        ),
+
+                                                        const SizedBox(
+                                                          width: 4,
+                                                        ),
+                                                        FutureBuilder<bool>(
+                                                          future: _downloadManager
+                                                              .isDownloaded(
+                                                                audio.audioPath
+                                                                    .toString(),
+                                                              ),
+                                                          builder: (
+                                                            context,
+                                                            snapshot,
+                                                          ) {
+                                                            final bool
+                                                            isDownloaded =
+                                                                snapshot.data ??
+                                                                false;
+                                                            final bool
+                                                            isDownloading =
+                                                                _downloadManager
+                                                                    .isDownloading(
+                                                                      audio
+                                                                          .audioPath
+                                                                          .toString(),
+                                                                    );
+
+                                                            return Material(
+                                                              color:
+                                                                  Colors
+                                                                      .transparent,
+                                                              child:
+                                                                  isDownloading
+                                                                      ? Stack(
+                                                                        alignment:
+                                                                            Alignment.center,
+                                                                        children: [
+                                                                          StreamBuilder<
+                                                                            double
+                                                                          >(
+                                                                            stream: _downloadManager.getDownloadProgressStream(
+                                                                              audio.audioPath.toString(),
+                                                                            ),
+                                                                            builder: (
+                                                                              context,
+                                                                              snapshot,
+                                                                            ) {
+                                                                              final progress =
+                                                                                  snapshot.data ??
+                                                                                  0.0;
+                                                                              return SizedBox(
+                                                                                width:
+                                                                                    24,
+                                                                                height:
+                                                                                    24,
+                                                                                child: CircularProgressIndicator(
+                                                                                  value:
+                                                                                      progress,
+                                                                                  strokeWidth:
+                                                                                      2,
+                                                                                  color:
+                                                                                      primaryColor,
+                                                                                ),
+                                                                              );
+                                                                            },
+                                                                          ),
+                                                                          IconButton(
+                                                                            icon: Icon(
+                                                                              Icons.cancel,
+                                                                              color:
+                                                                                  Colors.red,
+                                                                              size:
+                                                                                  18,
+                                                                            ),
+                                                                            padding:
+                                                                                EdgeInsets.zero,
+                                                                            constraints:
+                                                                                BoxConstraints(),
+                                                                            onPressed: () {
+                                                                              _downloadManager.cancelDownload(
+                                                                                audio.audioPath.toString(),
+                                                                              );
+                                                                            },
+                                                                            tooltip:
+                                                                                'Cancel Download',
+                                                                          ),
+                                                                        ],
+                                                                      )
+                                                                      : InkWell(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(
+                                                                              50,
+                                                                            ),
+                                                                        onTap:
+                                                                            isDownloaded
+                                                                                ? null
+                                                                                : () {
+                                                                                  _downloadAudio(
+                                                                                    audio.audioPath.toString(),
+                                                                                    '${audio.audioSlug}_${audio.audioName}.mp3',
+                                                                                    audio.audioName.toString(),
+                                                                                  ).then(
+                                                                                    (
+                                                                                      _,
+                                                                                    ) {
+                                                                                      _mySpaceBloc.add(
+                                                                                        AddOnMySpaceEvent(
+                                                                                          audioSlug:
+                                                                                              successState.record![index].audioSlug.toString(),
+                                                                                          mySpaceType:
+                                                                                              '3',
+                                                                                          context:
+                                                                                              context,
+                                                                                        ),
+                                                                                      );
+                                                                                    },
+                                                                                  );
+                                                                                },
+                                                                        child: Padding(
+                                                                          padding:
+                                                                              const EdgeInsets.all(
+                                                                                8,
+                                                                              ),
+                                                                          child: Icon(
+                                                                            isDownloaded
+                                                                                ? Icons.download_done_rounded
+                                                                                : Icons.download_rounded,
+                                                                            color:
+                                                                                isDownloaded
+                                                                                    ? Colors.green
+                                                                                    : primaryColor,
+                                                                            size:
+                                                                                24,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                            );
+                                                          },
+                                                        ),
+                                                      ],
+                                                    )
+                                                    : Row(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        Material(
+                                                          color:
+                                                              Colors
+                                                                  .transparent,
+                                                          child: InkWell(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  50,
+                                                                ),
+                                                            onTap: () {
+                                                              CustomSnackBar.show(
+                                                                context:
+                                                                    context,
+                                                                message:
+                                                                    'Please log in to bookmark this audio.',
+                                                                type:
+                                                                    SnackBarType
+                                                                        .warning,
+                                                              );
+                                                            },
+                                                            child: Padding(
+                                                              padding:
+                                                                  const EdgeInsets.all(
+                                                                    8,
+                                                                  ),
+                                                              child: Icon(
+                                                                Icons
+                                                                    .bookmark_outline_rounded,
+                                                                color:
+                                                                    primaryColor,
+                                                                size: 24,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        Material(
+                                                          color:
+                                                              Colors
+                                                                  .transparent,
+                                                          child: InkWell(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  50,
+                                                                ),
+                                                            onTap: () {
+                                                              CustomSnackBar.show(
+                                                                context:
+                                                                    context,
+                                                                message:
+                                                                    'Please log in to download this audio.',
+                                                                type:
+                                                                    SnackBarType
+                                                                        .warning,
+                                                              );
+                                                            },
+                                                            child: Padding(
+                                                              padding:
+                                                                  const EdgeInsets.all(
+                                                                    8,
+                                                                  ),
+                                                              child: Icon(
+                                                                Icons
+                                                                    .download_rounded,
+                                                                color:
+                                                                    primaryColor,
+                                                                size: 24,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    );
+                  } else if (state is EBookChapterAudioFailedToLoadErrorState) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
+                            size: 48,
+                            color: Colors.red,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            state.error,
+                            style: GoogleFonts.poppins(fontSize: 16),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () {
+                              _eBookBloc.add(
+                                EBookChapterAudioFetchingEvent(
+                                  chapterSlug: widget.audioParams.chapterSlug,
+                                  ebookSlug: widget.audioParams.ebookSlug,
+                                ),
+                              );
+                            },
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  return const Center(child: Text('Something went wrong'));
+                },
+              ),
             ),
           );
         },
@@ -1018,6 +1128,7 @@ class AudioParams {
   final String ebookTitle;
   final String? image;
   final String? audioSlug;
+  final int? bookmarkStatus;
 
   AudioParams({
     required this.chapterTitle,
@@ -1026,5 +1137,6 @@ class AudioParams {
     required this.ebookTitle,
     this.image,
     this.audioSlug,
+    this.bookmarkStatus,
   });
 }

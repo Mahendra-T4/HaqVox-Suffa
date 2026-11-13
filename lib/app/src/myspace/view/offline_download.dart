@@ -140,60 +140,6 @@ class _OfflineDownloadsState extends State<OfflineDownloads> {
     );
   }
 
-  Widget _buildControlBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        children: [
-          DropdownButton<String>(
-            value: _sortBy,
-            underline: const SizedBox(),
-            icon: const Icon(Icons.sort),
-            items: [
-              DropdownMenuItem(
-                value: 'date',
-                child: Text('Sort by Date', style: GoogleFonts.poppins()),
-              ),
-              DropdownMenuItem(
-                value: 'name',
-                child: Text('Sort by Name', style: GoogleFonts.poppins()),
-              ),
-              DropdownMenuItem(
-                value: 'size',
-                child: Text('Sort by Size', style: GoogleFonts.poppins()),
-              ),
-            ],
-            onChanged: (value) {
-              if (value != null) {
-                setState(() {
-                  _sortBy = value;
-                });
-              }
-            },
-          ),
-          IconButton(
-            icon: Icon(
-              _sortAscending ? Icons.arrow_upward : Icons.arrow_downward,
-            ),
-            onPressed: () {
-              setState(() {
-                _sortAscending = !_sortAscending;
-              });
-            },
-          ),
-          const Spacer(),
-          IconButton(
-            icon: Icon(_isGridView ? Icons.list : Icons.grid_view),
-            onPressed: () {
-              setState(() {
-                _isGridView = !_isGridView;
-              });
-            },
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildEmptyState() {
     return Center(
@@ -249,7 +195,7 @@ class _OfflineDownloadsState extends State<OfflineDownloads> {
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(15),
                     ),
-                    color: primaryColor.withOpacity(0.1),
+                    color: primaryColor.withValues(alpha:0.1),
                   ),
                   child:
                       download.coverUrl != null
@@ -262,7 +208,7 @@ class _OfflineDownloadsState extends State<OfflineDownloads> {
                               fit: BoxFit.cover,
                               placeholder:
                                   (context, url) => Container(
-                                    color: primaryColor.withOpacity(0.1),
+                                    color: primaryColor.withValues(alpha:0.1),
                                     child: Icon(
                                       Icons.music_note,
                                       size: 48,
@@ -271,7 +217,7 @@ class _OfflineDownloadsState extends State<OfflineDownloads> {
                                   ),
                               errorWidget:
                                   (context, url, error) => Container(
-                                    color: primaryColor.withOpacity(0.1),
+                                    color: primaryColor.withValues(alpha:0.1),
                                     child: Icon(
                                       Icons.music_note,
                                       size: 48,
@@ -341,7 +287,7 @@ class _OfflineDownloadsState extends State<OfflineDownloads> {
             borderRadius: BorderRadius.circular(15),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha:0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 2),
               ),
@@ -354,7 +300,7 @@ class _OfflineDownloadsState extends State<OfflineDownloads> {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: primaryColor.withOpacity(0.1),
+                color: primaryColor.withValues(alpha:0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child:
@@ -458,7 +404,7 @@ class _OfflineDownloadsState extends State<OfflineDownloads> {
           padding: const EdgeInsets.all(16),
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: primaryColor.withOpacity(0.1),
+            color: primaryColor.withValues(alpha:0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
@@ -614,9 +560,9 @@ class _OfflineDownloadsState extends State<OfflineDownloads> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
-        color: Colors.orange.withOpacity(0.1),
+        color: Colors.orange.withValues(alpha:0.1),
         border: Border(
-          top: BorderSide(color: Colors.orange.withOpacity(0.3), width: 1),
+          top: BorderSide(color: Colors.orange.withValues(alpha:0.3), width: 1),
         ),
       ),
       child: Row(

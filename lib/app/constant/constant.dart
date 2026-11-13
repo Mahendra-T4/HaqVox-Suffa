@@ -155,7 +155,7 @@ TextStyle white14RegularTextStyle = const TextStyle(
 TextStyle primaryColor14MediumTextStyle = const TextStyle(
   color: primaryColor,
   fontSize: 14,
-  fontWeight: FontWeight.w500,
+  fontWeight: FontWeight.w600,
 );
 
 TextStyle primaryColor14RegularTextStyle = const TextStyle(

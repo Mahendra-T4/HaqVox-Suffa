@@ -23,13 +23,14 @@ class EBookRecordAdapter extends TypeAdapter<EBookRecord> {
       ebookTagline: fields[3] as String?,
       ebookDescription: fields[4] as String?,
       ebookSlug: fields[5] as String?,
+      bookmarkStatus: fields[6] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, EBookRecord obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.ebookName)
       ..writeByte(1)
@@ -41,7 +42,9 @@ class EBookRecordAdapter extends TypeAdapter<EBookRecord> {
       ..writeByte(4)
       ..write(obj.ebookDescription)
       ..writeByte(5)
-      ..write(obj.ebookSlug);
+      ..write(obj.ebookSlug)
+      ..writeByte(6)
+      ..write(obj.bookmarkStatus);
   }
 
   @override

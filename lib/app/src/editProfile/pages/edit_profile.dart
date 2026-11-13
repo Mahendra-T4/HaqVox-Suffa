@@ -9,17 +9,14 @@ import 'package:haqvox/app/assets/assets.dart';
 import 'package:haqvox/app/config/environment.dart';
 import 'package:haqvox/app/constant/constant.dart';
 import 'package:haqvox/app/core/database/key.dart';
-import 'package:haqvox/app/core/database/shared_prefs_config.dart';
 import 'package:haqvox/app/core/database/user/hive_db.dart';
 import 'package:haqvox/app/core/widgets/appbar.dart';
 import 'package:haqvox/app/core/widgets/custom_snackbar.dart';
 import 'package:haqvox/app/services/connectivity.dart';
-import 'package:haqvox/app/services/no_internate_page.dart';
 import 'package:haqvox/app/src/auth/models/gender_entity.dart';
 import 'package:haqvox/app/src/auth/view/widget/date_picker.dart';
 import 'package:haqvox/app/src/auth/view/widget/textfields.dart';
 import 'package:haqvox/app/src/editProfile/bloc/profile_bloc.dart';
-import 'package:haqvox/app/src/myspace/view/myspace.dart';
 import 'package:haqvox/app/src/myspace/view/offline_download.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -353,7 +350,7 @@ class _EditProfileState extends State<EditProfile> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: primaryColor.withOpacity(0.3),
+                    color: primaryColor.withValues(alpha:0.3),
                     width: 2,
                   ),
                 ),
@@ -376,7 +373,7 @@ class _EditProfileState extends State<EditProfile> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha:0.1),
                         blurRadius: 8,
                         offset: const Offset(0, 4),
                       ),
@@ -397,7 +394,7 @@ class _EditProfileState extends State<EditProfile> {
                       border: Border.all(color: Colors.white, width: 2),
                       boxShadow: [
                         BoxShadow(
-                          color: primaryColor.withOpacity(0.3),
+                          color: primaryColor.withValues(alpha:0.3),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -466,7 +463,7 @@ class _EditProfileState extends State<EditProfile> {
                       backgroundColor: primaryColor,
                       foregroundColor: Colors.white,
                       elevation: 2,
-                      shadowColor: primaryColor.withOpacity(0.3),
+                      shadowColor: primaryColor.withValues(alpha:0.3),
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(18),
@@ -656,7 +653,7 @@ class _EditProfileState extends State<EditProfile> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: primaryColor.withOpacity(0.3),
+                color: primaryColor.withValues(alpha:0.3),
                 width: 2,
               ),
             ),
@@ -708,7 +705,7 @@ class _EditProfileState extends State<EditProfile> {
                 border: Border.all(color: Colors.white, width: 2),
                 boxShadow: [
                   BoxShadow(
-                    color: primaryColor.withOpacity(0.3),
+                    color: primaryColor.withValues(alpha:0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -822,7 +819,7 @@ class _EditProfileState extends State<EditProfile> {
                                     pickedGender ==
                                             genderEntity.record![index].genderID
                                                 ?.toString()
-                                        ? primaryColor.withOpacity(0.15)
+                                        ? primaryColor.withValues(alpha:0.15)
                                         : Colors.white,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(

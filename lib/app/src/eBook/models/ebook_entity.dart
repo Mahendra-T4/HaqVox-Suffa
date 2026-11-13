@@ -44,6 +44,8 @@ class EBookRecord extends HiveObject {
   String? ebookDescription;
   @HiveField(5)
   String? ebookSlug;
+  @HiveField(6)
+  int? bookmarkStatus;
 
   EBookRecord({
     this.ebookName,
@@ -52,6 +54,7 @@ class EBookRecord extends HiveObject {
     this.ebookTagline,
     this.ebookDescription,
     this.ebookSlug,
+    this.bookmarkStatus,
   });
 
   EBookRecord.fromJson(Map<String, dynamic> json) {
@@ -61,6 +64,7 @@ class EBookRecord extends HiveObject {
     ebookTagline = json['ebookTagline'];
     ebookDescription = json['ebookDescription'];
     ebookSlug = json['ebookSlug'];
+    bookmarkStatus = json['audioBookmarked'];
   }
 
   Map<String, dynamic> toJson() {
@@ -71,6 +75,7 @@ class EBookRecord extends HiveObject {
     data['ebookTagline'] = ebookTagline;
     data['ebookDescription'] = ebookDescription;
     data['ebookSlug'] = ebookSlug;
+    data['audioBookmarked'] = bookmarkStatus;
     return data;
   }
 }

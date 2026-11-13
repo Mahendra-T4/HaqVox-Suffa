@@ -1,43 +1,25 @@
 class TermAndConditionEntity {
   int? status;
-  Record? record;
+  String? pageURL;
   String? message;
 
-  TermAndConditionEntity({this.status, this.record, this.message});
+  TermAndConditionEntity({this.status, this.pageURL, this.message});
 
   TermAndConditionEntity.fromJson(Map<String, dynamic> json) {
     status = json['status'];
-    record =
-        json['record'] != null ? Record.fromJson(json['record']) : null;
+    String? rawUrl = json['pageURL'];
+    if (rawUrl != null && !rawUrl.contains('index.php') && rawUrl.contains('/haqvox/')) {
+      rawUrl = rawUrl.replaceFirst('/haqvox/', '/haqvox/index.php/');
+    }
+    pageURL = rawUrl;
     message = json['message'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['status'] = status;
-    if (record != null) {
-      data['record'] = record!.toJson();
-    }
-    data['message'] = message;
-    return data;
-  }
-}
-
-class Record {
-  String? pageHeading;
-  String? pageDescription;
-
-  Record({this.pageHeading, this.pageDescription});
-
-  Record.fromJson(Map<String, dynamic> json) {
-    pageHeading = json['pageHeading'];
-    pageDescription = json['pageDescription'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['pageHeading'] = pageHeading;
-    data['pageDescription'] = pageDescription;
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['status'] = this.status;
+    data['pageURL'] = this.pageURL;
+    data['message'] = this.message;
     return data;
   }
 }

@@ -17,7 +17,7 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace = "com.tfourtech.haqvox_suffa"
     compileSdk = 36
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "30.0.15729638"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -31,8 +31,8 @@ android {
     defaultConfig {
         applicationId = "com.tfourtech.haqvox_suffa"
         minSdk = flutter.minSdkVersion
-        targetSdk = 35
-        versionCode = 5
+        targetSdk = 36
+        versionCode = 9
         versionName = flutter.versionName
     }
 

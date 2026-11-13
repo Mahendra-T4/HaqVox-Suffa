@@ -168,7 +168,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: primaryColor.withOpacity(0.3),
+                              color: primaryColor.withValues(alpha:0.3),
                               spreadRadius: 1,
                               blurRadius: 1,
                             ),

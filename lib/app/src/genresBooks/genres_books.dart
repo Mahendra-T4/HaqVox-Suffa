@@ -6,12 +6,10 @@ import 'package:haqvox/app/assets/assets.dart';
 import 'package:haqvox/app/constant/constant.dart';
 import 'package:haqvox/app/core/widgets/appbar.dart';
 import 'package:haqvox/app/services/connectivity.dart';
-import 'package:haqvox/app/services/no_internate_page.dart';
 import 'package:haqvox/app/src/eBook/bloc/e_book_bloc.dart';
 import 'package:haqvox/app/src/eBook/models/ebook_details_params.dart';
 import 'package:haqvox/app/src/eBook/view/book_detail.dart';
 import 'package:haqvox/app/src/home/models/ebook_params.dart';
-import 'package:haqvox/app/src/myspace/view/myspace.dart';
 import 'package:haqvox/app/src/myspace/view/offline_download.dart';
 
 class GenersBooks extends StatefulWidget {
@@ -130,6 +128,10 @@ class _GenersBooksState extends State<GenersBooks> {
                                       ebookSlug:
                                           successState.record![index].ebookSlug
                                               .toString(),
+                                      bookmarkStatus:
+                                          successState
+                                              .record![index]
+                                              .bookmarkStatus,
                                     ),
                                   );
                                 },
@@ -140,7 +142,7 @@ class _GenersBooksState extends State<GenersBooks> {
                                   ),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
-                                    color: Colors.grey.withOpacity(.3),
+                                    color: Colors.grey.withValues(alpha: .3),
                                   ),
                                   child: Stack(
                                     children: [

@@ -31,6 +31,9 @@ class Record {
   String? audioName;
   String? audioPath;
   String? audioSlug;
+  String? audioShortName;
+  int? audioBookmarked;
+  String? audioCode;
 
   Record({this.audioName, this.audioPath, this.audioSlug});
 
@@ -38,6 +41,9 @@ class Record {
     audioName = json['audioName'];
     audioPath = json['audioPath'];
     audioSlug = json['audioSlug'];
+    audioShortName = json['audioShortName'];
+    audioBookmarked = json['audioBookmarked'];
+    audioCode = json['audioCode'];
   }
 
   Map<String, dynamic> toJson() {
@@ -45,6 +51,9 @@ class Record {
     data['audioName'] = audioName;
     data['audioPath'] = audioPath;
     data['audioSlug'] = audioSlug;
+    data['audioShortName'] = audioShortName;
+    data['audioBookmarked'] = audioBookmarked;
+    data['audioCode'] = audioCode;
     return data;
   }
 }

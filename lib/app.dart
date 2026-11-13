@@ -13,15 +13,14 @@ class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'Soffa',
+      title: 'HaqVox',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        primaryColor: primaryColor,
         scaffoldBackgroundColor: whiteColor,
         fontFamily: 'Rubik',
         appBarTheme: const AppBarTheme(
-          color: primaryColor,
+          backgroundColor: primaryColor,
           elevation: 2,
           iconTheme: IconThemeData(color: whiteColor),
         ),

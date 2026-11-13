@@ -28,7 +28,7 @@ class GenderEntity {
 }
 
 class Record {
-  String? genderID;
+  int? genderID;
   String? genderName;
 
   Record({this.genderID, this.genderName});

@@ -181,8 +181,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       controller: fNameController,
                       hintText: 'First Name',
                       icon: Icons.person,
-                      keyboardType: TextInputType
-                          .text, // Changed from emailAddress to text
+                      keyboardType:
+                          TextInputType
+                              .text, // Changed from emailAddress to text
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(
                           RegExp(r'[a-zA-Z\s]'),
@@ -361,131 +362,144 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         SizedBox(
                           height: 100,
-                          child: _isLoadingGenders
-                              ? const Center(child: CircularProgressIndicator())
-                              : _genderError != null
-                              ? _buildGenderError()
-                              : genderEntity.record == null
-                              ? const Center(
-                                  child: Text(
-                                    'Unable to load genders',
-                                    style: TextStyle(color: Colors.grey),
-                                  ),
-                                )
-                              : ListView.builder(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 4,
-                                  ),
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: genderEntity.record?.length ?? 0,
-                                  itemBuilder: (context, index) {
-                                    // Set Male as default selection when list is loaded
-                                    if (pickedGender == null &&
-                                        genderEntity
-                                                .record![index]
-                                                .genderName ==
-                                            'Male') {
-                                      WidgetsBinding.instance
-                                          .addPostFrameCallback((_) {
-                                            setState(() {
-                                              pickedGender = genderEntity
+                          child:
+                              _isLoadingGenders
+                                  ? const Center(
+                                    child: CircularProgressIndicator(),
+                                  )
+                                  : _genderError != null
+                                  ? _buildGenderError()
+                                  : genderEntity.record == null
+                                  ? const Center(
+                                    child: Text(
+                                      'Unable to load genders',
+                                      style: TextStyle(color: Colors.grey),
+                                    ),
+                                  )
+                                  : ListView.builder(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 4,
+                                    ),
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: genderEntity.record?.length ?? 0,
+                                    itemBuilder: (context, index) {
+                                      // Set Male as default selection when list is loaded
+                                      if (pickedGender == null &&
+                                          genderEntity
                                                   .record![index]
-                                                  .genderID
-                                                  ?.toString();
-                                              gender = genderEntity
-                                                  .record![index]
-                                                  .genderName;
+                                                  .genderName ==
+                                              'Male') {
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                              setState(() {
+                                                pickedGender =
+                                                    genderEntity
+                                                        .record![index]
+                                                        .genderID
+                                                        ?.toString();
+                                                gender =
+                                                    genderEntity
+                                                        .record![index]
+                                                        .genderName;
+                                              });
                                             });
-                                          });
-                                    }
+                                      }
 
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 6,
-                                      ),
-                                      child: Material(
-                                        color: Colors.transparent,
-                                        child: InkWell(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                          onTap: () {
-                                            setState(() {
-                                              pickedGender = genderEntity
-                                                  .record![index]
-                                                  .genderID
-                                                  ?.toString();
-                                              gender = genderEntity
-                                                  .record![index]
-                                                  .genderName;
-                                            });
-                                          },
-                                          child: AnimatedContainer(
-                                            duration: const Duration(
-                                              milliseconds: 200,
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                        ),
+                                        child: Material(
+                                          color: Colors.transparent,
+                                          child: InkWell(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
                                             ),
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 12,
-                                              horizontal: 24,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  pickedGender ==
-                                                      genderEntity
-                                                          .record![index]
-                                                          .genderID
-                                                          ?.toString()
-                                                  ? primaryColor.withOpacity(
-                                                      0.15,
-                                                    )
-                                                  : Colors.white,
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                              border: Border.all(
+                                            onTap: () {
+                                              setState(() {
+                                                pickedGender =
+                                                    genderEntity
+                                                        .record![index]
+                                                        .genderID
+                                                        ?.toString();
+                                                gender =
+                                                    genderEntity
+                                                        .record![index]
+                                                        .genderName;
+                                              });
+                                            },
+                                            child: AnimatedContainer(
+                                              duration: const Duration(
+                                                milliseconds: 200,
+                                              ),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 12,
+                                                    horizontal: 24,
+                                                  ),
+                                              decoration: BoxDecoration(
                                                 color:
                                                     pickedGender ==
-                                                        genderEntity
-                                                            .record![index]
-                                                            .genderID
-                                                            ?.toString()
-                                                    ? primaryColor
-                                                    : Colors.grey.shade300,
-                                                width: 1.5,
-                                              ),
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                genderEntity
-                                                    .record![index]
-                                                    .genderName
-                                                    .toString(),
-                                                style: TextStyle(
+                                                            genderEntity
+                                                                .record![index]
+                                                                .genderID
+                                                                ?.toString()
+                                                        ? primaryColor
+                                                            .withValues(
+                                                              alpha: 0.15,
+                                                            )
+                                                        : Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                                border: Border.all(
                                                   color:
                                                       pickedGender ==
-                                                          genderEntity
-                                                              .record![index]
-                                                              .genderID
-                                                              ?.toString()
-                                                      ? primaryColor
-                                                      : Colors.grey.shade600,
-                                                  fontSize: 15,
-                                                  fontWeight:
-                                                      pickedGender ==
-                                                          genderEntity
-                                                              .record![index]
-                                                              .genderID
-                                                              ?.toString()
-                                                      ? FontWeight.w600
-                                                      : FontWeight.w500,
+                                                              genderEntity
+                                                                  .record![index]
+                                                                  .genderID
+                                                                  ?.toString()
+                                                          ? primaryColor
+                                                          : Colors
+                                                              .grey
+                                                              .shade300,
+                                                  width: 1.5,
+                                                ),
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  genderEntity
+                                                      .record![index]
+                                                      .genderName
+                                                      .toString(),
+                                                  style: TextStyle(
+                                                    color:
+                                                        pickedGender ==
+                                                                genderEntity
+                                                                    .record![index]
+                                                                    .genderID
+                                                                    ?.toString()
+                                                            ? primaryColor
+                                                            : Colors
+                                                                .grey
+                                                                .shade600,
+                                                    fontSize: 15,
+                                                    fontWeight:
+                                                        pickedGender ==
+                                                                genderEntity
+                                                                    .record![index]
+                                                                    .genderID
+                                                                    ?.toString()
+                                                            ? FontWeight.w600
+                                                            : FontWeight.w500,
+                                                  ),
                                                 ),
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    );
-                                  },
-                                ),
+                                      );
+                                    },
+                                  ),
                         ),
                       ],
                     ),
@@ -595,9 +609,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
               onChanged: (bool? value) {
                 setState(() {
                   _acceptedTerms = value ?? false;
-                  termsValue = _acceptedTerms
-                      ? '1'
-                      : '2'; // Convert boolean to string
+                  termsValue =
+                      _acceptedTerms ? '1' : '2'; // Convert boolean to string
                 });
               },
             ),
@@ -615,15 +628,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       color: primaryColor,
                       decoration: TextDecoration.underline,
                     ),
-                    recognizer: TapGestureRecognizer()
-                      ..onTap = () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => InfoPage(pageRole: '3'),
-                          ),
-                        );
-                      },
+                    recognizer:
+                        TapGestureRecognizer()
+                          ..onTap = () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => InfoPage(pageRole: '3'),
+                              ),
+                            );
+                          },
                   ),
                 ],
               ),
@@ -690,6 +704,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return BlocConsumer(
       bloc: _authBloc,
       listener: (context, state) {
+        if (state is AuthSuffaNewUserRegistrationSuccessState) {
+          CustomSnackBar.show(
+            context: context,
+            message:
+                '${state.registerEntity.message} and OTP: ${state.registerEntity.uOTP}',
+            type: SnackBarType.success,
+            maxLines: 4,
+          );
+        }
         if (state is AuthSuffaNewUserRegistrationFailureState) {
           CustomSnackBar.show(context: context, message: state.error);
         }

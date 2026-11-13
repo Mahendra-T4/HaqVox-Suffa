@@ -6,7 +6,6 @@ import 'package:haqvox/app/constant/constant.dart';
 import 'package:haqvox/app/core/widgets/appbar.dart';
 import 'package:haqvox/app/core/widgets/custom_snackbar.dart';
 import 'package:haqvox/app/services/connectivity.dart';
-import 'package:haqvox/app/src/myspace/view/myspace.dart';
 import 'package:haqvox/app/src/myspace/view/offline_download.dart';
 import 'package:haqvox/app/src/support/bloc/ticket_bloc.dart';
 import 'package:haqvox/app/src/support/models/generate_ticket_params.dart';
